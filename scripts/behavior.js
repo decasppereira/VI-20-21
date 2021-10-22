@@ -19,6 +19,7 @@ const svg = d3.select("#line_chart")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
 /* WE HAVE TO BUILD THE BUTTON OUTSIDE CSV FUNCTION IN ORDER TO CHOOSE WHICH DATASET WE'RE GONNA READ
+   WHEN WE CHOOSE A CERTAIN BUTTON, WE CHANGE THE DATASET AND BUILD ANOTHER LINE CHART RELATIVELY TO THE METRIC SELECTED
   const allMetrics = ["Air Quality","Emissions","Fires","Temperature"]
   // add the options to the button
   d3.select("#selectButton")
@@ -33,8 +34,17 @@ const svg = d3.select("#line_chart")
 //Read the data
 d3.csv("data/fires_hectars.csv").then( function(data) {
     //var max = d3.max(data, d=>d["1991"]) ;
+    var years = []
+
+    for (i=0;i<data.length;i++){
+      if (!(years.includes(data[i]["Year"]))){
+        years.push(data[i]["Year"]);
+      }
+    }
+
     const sumstat = d3.group(data, d => d.Country);
-    console.log(sumstat);
+    
+    
   
     //var max = d3.max(data, function(d) { return +d[year]; });  
     //console.log(max);  
@@ -62,7 +72,6 @@ d3.csv("data/fires_hectars.csv").then( function(data) {
     //  .domain(allGroup)
     //  .range(d3.schemeSet2);
     // Add X axis --> it is a date format
-    console.log(d3.extent(data, function(d) { return d.Year;}));
     const x = d3.scaleLinear()
       //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
       .domain(d3.extent(data, function(d) { return d.Year;}))
