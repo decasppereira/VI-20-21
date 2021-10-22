@@ -2,16 +2,37 @@ import pandas as pd
 import itertools
 
 #data2 = pd.read_csv("DataExtract2.csv", delimiter=",", encoding="latin1")
-data = pd.read_csv("../data/air_quality_CO.csv", delimiter=",", encoding="latin1")
+country_list = ["Austria","Belgium","Bulgaria","Cyprus","Denmark","Czechia","Croatia","Estonia","Finland","France","Germany","Greece","Hungary","Ireland","Italy","Iceland","Lithuania","Luxembourg","Malta","Netherlands","Norway","Poland","Portugal","Romania","Sweden","Slovenia","Slovakia","Spain","Turkey"]
+
+data = pd.read_csv("../data/fires_hectars.csv", delimiter=",", encoding="latin1")
+data = data.fillna(0)
+print(data.loc[[23]])
+all_data = data.values.tolist()
+years_list = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021]
+yearsssss = []
+values = []
+c_list = []
+for lst in all_data:
+    cy = lst[0]
+    for value in lst[1:]:
+        c_list.append(cy)
+        values.append(value)
+    for year in years_list:
+        yearsssss.append(year)
+    
+d = {"Country":c_list,"Year":yearsssss,"Hectars_Burned":values}
+d1 = pd.DataFrame(data=d)
+print(d1)
+d1.to_csv("fires_hectars.csv", index=False,header=True)
+
 
 #data.drop(["Air Quality Network","Air Quality Network Name","Unit Of Air Pollution Level","Air Quality Station EoI Code","Air Quality Station Name","Sampling Point Id","Data Aggregation Process Id","Data Aggregation Process","Data Coverage","Verification","Air Quality Station Type","Air Quality Station Area","Longitude","Latitude","Altitude","City","City Code","City Population","Source Of Data Flow","Calculation Time","Link to raw data (only E1a/validated data from AQ e-Reporting)"],axis=1,inplace=True)
 #data.drop(["Air Pollutant","Air Pollutant Description"],axis=1, inplace=True)
-data = data[data["Year"] >= 1990]
+#data = data[data["Year"] >= 1990]
 
-data = data.groupby(['Country','Year'])['Air Pollution Level'].mean()
-data=data.reset_index()
+#data = data.groupby(['Country','Year'])['Air Pollution Level'].mean()
+#data=data.reset_index()
 
-#country_list = ["Austria","Belgium","Bulgaria","Cyprus","Denmark","Czechia","Croatia","Estonia","Finland","France","Germany","Greece","Hungary","Ireland","Italy","Iceland","Lithuania","Luxembourg","Malta","Netherlands","Norway","Poland","Portugal","Romania","Sweden","Slovenia","Slovakia","Spain","Turkey"]
 
 #data = data[data["Country"].isin(country_list)]
 #data.sort_values(['Country', 'Year'], ascending=[True, True], inplace=True)
