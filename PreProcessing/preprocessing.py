@@ -1,14 +1,34 @@
 import pandas as pd
 import itertools
+import numpy as np
 
 #data2 = pd.read_csv("DataExtract2.csv", delimiter=",", encoding="latin1")
 country_list = ["Austria","Belgium","Bulgaria","Cyprus","Denmark","Czechia","Croatia","Estonia","Finland","France","Germany","Greece","Hungary","Ireland","Italy","Iceland","Lithuania","Luxembourg","Malta","Netherlands","Norway","Poland","Portugal","Romania","Sweden","Slovenia","Slovakia","Spain","Turkey"]
 
-data = pd.read_csv("../data/fires_hectars.csv", delimiter=",", encoding="latin1")
-data = data.fillna(0)
-print(data.loc[[23]])
+data = pd.read_csv("../data/air_quality_CO.csv", delimiter=",", encoding="latin1")
+after_year = data[data["Year"] >= 2000]
+
+after_year = after_year[after_year["Year"] <= 2018]
+
+
+after_year = after_year.groupby(["Country", "Year"]).mean()
+after_year.to_csv("air_quality_CO_try.csv", index=True,header=True)
+
+dataa = pd.read_csv("../data/fires_hectars.csv", delimiter=",", encoding="latin1")
+after_year_dataa = dataa[dataa["Year"] >= 2000]
+
+after_year_dataa = after_year_dataa[after_year_dataa["Year"] <= 2018]
+
+
+after_year_dataa = after_year_dataa.groupby(["Country", "Year"]).mean()
+after_year_dataa.to_csv("fires_try.csv", index=True,header=True)
+
+new_data = pd.merge(after_year,after_year_dataa,how="left",left_on=["Country","Year"],right_on=["Country","Year"])
+new_data=new_data.rename(columns={"Value_x": "Air_Quality_CO", "Value_y": "Fires"})
+new_data.to_csv("merge_air_fires.csv", index=True,header=True)
+
 all_data = data.values.tolist()
-years_list = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021]
+years_list = [1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021]
 yearsssss = []
 values = []
 c_list = []
@@ -20,10 +40,10 @@ for lst in all_data:
     for year in years_list:
         yearsssss.append(year)
     
-d = {"Country":c_list,"Year":yearsssss,"Hectars_Burned":values}
+d = {"Country":c_list,"Year":yearsssss,"Value":values}
 d1 = pd.DataFrame(data=d)
 print(d1)
-d1.to_csv("fires_hectars.csv", index=False,header=True)
+#d1.to_csv("air_quality_CO.csv", index=False,header=True)
 
 
 #data.drop(["Air Quality Network","Air Quality Network Name","Unit Of Air Pollution Level","Air Quality Station EoI Code","Air Quality Station Name","Sampling Point Id","Data Aggregation Process Id","Data Aggregation Process","Data Coverage","Verification","Air Quality Station Type","Air Quality Station Area","Longitude","Latitude","Altitude","City","City Code","City Population","Source Of Data Flow","Calculation Time","Link to raw data (only E1a/validated data from AQ e-Reporting)"],axis=1,inplace=True)
