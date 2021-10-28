@@ -5,50 +5,52 @@ import numpy as np
 #data2 = pd.read_csv("DataExtract2.csv", delimiter=",", encoding="latin1")
 country_list = ["year","Austria","Belgium","Bulgaria","Cyprus","Czech Republic","Germany","Denmark","Spain","Estonia","Greece","Croatia","France","Finland","Iceland","Italy","Ireland","Hungary","Netherlands","Malta","Lithuania","Luxembourg","Norway","Romania","Portugal","Poland","Slovenia","Turkey","Slovakia","Sweden"]
 
-data = pd.read_csv("../data/annual_avg_temp.csv", delimiter=",", encoding="latin1")
+data = pd.read_csv("../data/fires_hectars.csv", delimiter=",", encoding="latin1")
 
-'''
+
 #after_year = data[data["Year"] >= 2000]
 
 #after_year = after_year[after_year["Year"] <= 2018]
 
-after_year = data
-after_year = after_year.groupby(["Country", "Year"]).mean()
+#after_year = data
+#after_year = after_year.groupby(["Country", "Year"]).mean()
 #after_year.to_csv("air_quality_CO_try.csv", index=True,header=True)
 
-dataa = pd.read_csv("../data/fires_hectars.csv", delimiter=",", encoding="latin1")
+dataa = pd.read_csv("../data/air_quality_CO.csv", delimiter=",", encoding="latin1")
 #after_year_dataa = dataa[dataa["Year"] >= 2000]
 
 #after_year_dataa = after_year_dataa[after_year_dataa["Year"] <= 2018]
 after_year_dataa= dataa
 
 after_year_dataa = after_year_dataa.groupby(["Country", "Year"]).mean()
-after_year_dataa.to_csv("fires_try.csv", index=True,header=True)
+#after_year_dataa.to_csv("fires_try.csv", index=True,header=True)
 
-new_data = pd.merge(after_year,after_year_dataa,how="left",left_on=["Country","Year"],right_on=["Country","Year"])
+new_data = pd.merge(data,after_year_dataa,how="left",left_on=["Country","Year"],right_on=["Country","Year"])
 new_data=new_data.rename(columns={"Value_x": "Air_Quality_CO", "Value_y": "Fires"})
 new_data=new_data.fillna(0)
+print(new_data)
 #new_data.to_csv("merge_air_fires.csv", index=True,header=True)
-'''
+
 all_data = data.values.tolist()
 years_list = [i for i in range(1901,2021)]
 yearsssss = []
 values = []
 c_list = []
+lst_append = []
 for lst in all_data:
     cy = str(lst[0].split(";")[0])
-    for value in lst[1:]:
+    lst = lst[0].split(";")
+    lst = lst[1:]
+    for value in lst:
         c_list.append(cy)
-        print("SDADSADSA")
-        print(c_list)
         values.append(value)
     for year in years_list:
         yearsssss.append(year)
 
-#d = {"Country":c_list,"Year":yearsssss,"Value":values}
-#d1 = pd.DataFrame(data=d)
-#print(d1)
-#d1.to_csv("emissions_per_capita_renewed.csv", index=False,header=True)
+d = {"Country":c_list,"Year":yearsssss,"Value":values}
+d1 = pd.DataFrame(data=d)
+d1 = d1[d1["Year"]>=1990]
+#d1.to_csv("annual_avg_temp_renewed.csv", index=False,header=True)
 
 
 #data.drop(["Air Quality Network","Air Quality Network Name","Unit Of Air Pollution Level","Air Quality Station EoI Code","Air Quality Station Name","Sampling Point Id","Data Aggregation Process Id","Data Aggregation Process","Data Coverage","Verification","Air Quality Station Type","Air Quality Station Area","Longitude","Latitude","Altitude","City","City Code","City Population","Source Of Data Flow","Calculation Time","Link to raw data (only E1a/validated data from AQ e-Reporting)"],axis=1,inplace=True)
