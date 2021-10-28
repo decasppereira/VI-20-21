@@ -9,14 +9,17 @@ emissions = pd.read_csv("../data/emissions_totals_renewed.csv", delimiter=",", e
 temp = pd.read_csv("../data/annual_avg_temp.csv", delimiter=",", encoding="latin1")
 
 airQ = airQ.groupby(["Country"]).mean()
+airQ = airQ.rename(columns={'Value': 'AirQ'})
 airQ.drop(["Year"],axis=1,inplace=True)
 
 fires = fires.groupby(["Country"]).mean()
+fires = fires.rename(columns={'Value': 'Fires'})
 fires.drop(["Year"],axis=1,inplace=True)
 
 emissions = emissions.groupby(["Country"]).mean()
-print(emissions)
+emissions = emissions.rename(columns={'Value': 'Emissions'})
 
+merged = airQ.merge(fires, left_on='Country', right_on='Country')
+merged = merged.merge(emissions, left_on='Country', right_on='Country')
 
-
-merged = pd.DataFrame()
+print(merged)
