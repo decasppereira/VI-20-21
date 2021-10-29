@@ -20,15 +20,15 @@
     <link rel="stylesheet" href="style/styles.css" />
 </head>
 
-<button onclick="updateData(air_quality)">Air Quality</button>
-<button onclick="updateData(data)">Emissions</button>
-<button onclick="updateData(fire)">Fires</button>
-<button onclick="updateData(data)">Temperature</button>
+<button onclick="update(air_quality)">Air Quality</button>
+<button onclick="update(emissions)">Emissions</button>
+<button onclick="update(fire)">Fires</button>
+<button onclick="update(temperature)">Temperature</button>
 
-<body onload="init()">
-
+<body>
+    
     <div style="width: 100%; overflow: hidden;">
-        <div id="line_chart" style="width: 600px; float: left;">  </div>
+        <div  id="line_chart" style="width: 600px; float: left;">  </div>
         <div id="parallelCoordinates" style="margin-left: 820px; margin-top:-7px;">  </div>
    </div>
  
