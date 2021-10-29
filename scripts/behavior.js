@@ -5,45 +5,50 @@ emissions_data = d3.csv("data/emissions_totals_renewed.csv")
 
 fire = "Fire"
 air_quality = "Air Quality"
+temperature = "Temperature"
+emissions = "Emissions"
 
 main_data = air_quality
-draw = true
 
-function init(){
-  //if (main_data=="Air Quality") line_chart(air_quality_data);
-  //else if (main_data=="Fire") line_chart(fire_data);
+isUpdate = false
 
-  if(draw){
-    d3.csv("data/mergedAverages.csv").then((data) =>{
-      parallelCoordinatesBrush(data);
-    })
-    .catch((error) =>{
-        console.log(error);
-    });
-    draw = false;
+var svg_line_chart = 0
+var svg_parallel_coordinates = 0
+var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
+var selectedButtonColor ="#ba8fff";
 
-    Promise.all([d3.json("data/countries.json"), d3.csv("data/annual_avg_temp_renewed.csv")]).then(function ([map, data]){
-      topology = map;
-      dataset = data;
-      gen_geo_map();
-  });
+const margin = {top: 10, right: 50, bottom: 30, left: 50},
+  width = 1000 - margin.left - margin.right,
+  height = 400 - margin.top - margin.bottom;
+
+  if (main_data=="Air Quality" && !isUpdate){
     
-  }
-}
+    line_chart(air_quality_data);
+   
+  } 
+  else if (main_data=="Fire") line_chart(fire_data);
 
-function updateData(data_name) {
-  main_data = data_name
-  init()
-}
+  else if (main_data=="Temperature") line_chart(temperature_data);
 
-function updateData_air_quality(svg) {
-  lineChart_air_quality()
-}
+  else if (main_data=="Emissions") line_chart(emissions_data);
+
+
+  d3.csv("data/mergedAverages.csv").then((data) =>{
+    parallelCoordinatesBrush(data);
+  })
+  .catch((error) =>{
+      console.log(error);
+  });
+  draw = false;
+
+  Promise.all([d3.json("data/countries.json"), d3.csv("data/annual_avg_temp_renewed.csv")]).then(function ([map, data]){
+    topology = map;
+    dataset = data;
+    gen_geo_map();
+});
+
 
 function gen_geo_map(){
-  var height = 380;
-  var margin = ({top: 30, right: 10, bottom: 30, left: 10});
-  var width = 700 - margin.left - margin.right;
   var year = '2018';
 
   var year_data = dataset.find(c => c.Year === year) ;
@@ -59,7 +64,7 @@ function gen_geo_map(){
       .scale(height)
       .rotate([0,0])
       .center([10, 32])
-      .translate([width/2, height]);
+      .translate([width/4, height]);
 
   var path = d3.geoPath().projection(projection);
 
@@ -188,72 +193,131 @@ function parallelCoordinatesBrush(data){
   }
 }
 
+function update(data) {
+  main_data = data
+  isUpdate = true
+  
+  if (main_data=="Air Quality"){
+    line_chart(air_quality_data);
+   
+  } 
+  else if (main_data=="Fire"){
+     line_chart(fire_data);
+  }
+
+  else if (main_data=="Emissions"){
+    line_chart(emissions_data);
+  }
+
+  else if (main_data=="Temperature"){
+    line_chart(temperature_data);
+  }
+}
+
 function line_chart(data) {
 
-// set the dimensions and margins of the graph
-const margin = {top: 10, right: 100, bottom: 30, left: 50},
-  width = 1000 - margin.left - margin.right,
-  height = 400 - margin.top - margin.bottom;
+if (isUpdate){
+  isUpdate=false
 
-// append the svg object to the body of the page
-const svg = d3.select("#line_chart")
-.append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
-.append("g")
-  .attr("transform", `translate(${margin.left},${margin.top})`);
+  data.then( function(data) {
+    sumstat = d3.group(data, d => d.Country);
+    svg_line_chart = d3.select("div#line_chart")
+    
+    x_line.domain([d3.min(data, function(d) { return d.Year }), d3.max(data, function(d) { return d.Year }) ]);
+    svg_line_chart.selectAll(".myXaxis").transition()
+    .duration(1000)
+    .call(d3.axisBottom(x_line));
 
-/* WE HAVE TO BUILD THE BUTTON OUTSIDE CSV FUNCTION IN ORDER TO CHOOSE WHICH DATASET WE'RE GONNA READ
- WHEN WE CHOOSE A CERTAIN BUTTON, WE CHANGE THE DATASET AND BUILD ANOTHER LINE CHART RELATIVELY TO THE METRIC SELECTED
-const allMetrics = ["Air Quality","Emissions","Fires","Temperature"]
-// add the options to the button
-d3.select("#selectButton")
-  .selectAll('myOptions')
-  .data(allMetrics)
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; }) // corresponding value returned by the button
-*/
+    y_line.domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value  }) ]);
+    svg_line_chart.selectAll(".myYaxis")
+      .transition()
+      .duration(1000)
+      .call(d3.axisLeft(y_line));
+    
+    svg_line_chart
+    .selectAll(".line")
+    .data(sumstat)
+    .join(
+      (enter) => {
+        return enter
+        .append("path")
+        .attr("class","line")
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", function(d){
+          return d3.line()
+            .x(function(d) { return x_line(d["Year"]); })
+            .y(function(d) { return y_line(+d["Value"]); })
+            (d[1])
+        })
+      },
+      (update) => {
+        update
+          .transition()
+          .duration(750)
+          .attr("d", function(d){
+            return d3.line()
+              .x(function(d) { return x_line(d["Year"]); })
+              .y(function(d) { return y_line(+d["Value"]); })
+              (d[1])
+          })
+      },
+      (exit) => {
+        return exit.remove();
+      }
+    );
+  })
+}
 
-//Read the data
+else{
+  //Read the data
 data.then( function(data) {
 
   const sumstat = d3.group(data, d => d.Country);
-  // A color scale: one color for each group
-  //const myColor = d3.scaleOrdinal()
-  //  .domain(allGroup)
-  //  .range(d3.schemeSet2);
-  // Add X axis --> it is a date format
-  const x = d3.scaleLinear()
+
+  svg_line_chart = d3.select("div#line_chart")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+ 
+  x_line = d3.scaleLinear()
     //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
     .domain(d3.extent(data, function(d) { return d.Year;}))
     .range([ 0, width ]);
-    svg.append("g")
+    svg_line_chart.append("g")
     .attr("transform", `translate(0, ${height})`)
-    .call(d3.axisBottom(x).ticks(21));
+    .attr("class","myXaxis")
+    .call(d3.axisBottom(x_line).ticks(21));
 
   // Add Y axis
-  const y = d3.scaleLinear()
-  .domain([0, d3.max(data, function(d) { return +d.Value; })])
+  y_line = d3.scaleLinear()
+  .domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value; })])
     .range([ height, 0 ]);
-  svg.append("g")
-    .call(d3.axisLeft(y));
+    svg_line_chart.append("g")
+    .attr("class","myYaxis")
+    .call(d3.axisLeft(y_line));
 
   // Initialize line with group a
-  svg.selectAll(".line")
+  svg_line_chart.selectAll(".line")
     .data(sumstat)
     .join("path")
+      .attr("class","line")
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
       .attr("d", function(d){
         return d3.line()
-          .x(function(d) { return x(d["Year"]); })
-          .y(function(d) { return y(+d["Value"]); })
+          .x(function(d) { return x_line(d["Year"]); })
+          .y(function(d) { return y_line(+d["Value"]); })
           (d[1])
       })
   // A function that update the chart
 })
+}
+
+
 
 }
