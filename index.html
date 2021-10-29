@@ -12,6 +12,7 @@
 
     <!-- Import libraries. -->
     <script language="JavaScript" type="text/javascript" src="libs/d3.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="libs/topojson.min.js"></script>
 
     <!-- JS -->
     <script language="JavaScript" type="text/javascript" src="scripts/behavior.js"></script>
@@ -20,16 +21,22 @@
     <link rel="stylesheet" href="style/styles.css" />
 </head>
 
-<button onclick="updateData(air_quality)">Air Quality</button>
-<button onclick="updateData(data)">Emissions</button>
-<button onclick="updateData(fire)">Fires</button>
-<button onclick="updateData(data)">Temperature</button>
 
 <body onload="init()">
-
+    <div id="buttons" style = "margin-left:35%;">
+        <button onclick="updateData(air_quality)">Air Quality</button>
+        <button onclick="updateData(data)">Emissions</button>
+        <button onclick="updateData(fire)">Fires</button>
+        <button onclick="updateData(data)">Temperature</button>
+    </div>
     <div style="width: 100%; overflow: hidden;">
-        <div id="line_chart" style="width: 600px; float: left;">  </div>
-        <div id="parallelCoordinates" style="margin-left: 820px; margin-top:-7px;">  </div>
+        <div class="top" style="margin-left: 30px; margin-top:10px; margin-right:50px;">
+            <div class="top" id="parallelCoordinates" style="float: left;" >  </div>
+            <div class="top" id="map" style= "float: right;" ></div>
+        </div>
+        
+        <div id="line_chart" style="width: 800px; float: left;">  </div>
+        
    </div>
  
 

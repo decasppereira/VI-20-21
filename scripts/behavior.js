@@ -1,22 +1,33 @@
 fire_data = d3.csv("data/fires_hectars.csv")
 air_quality_data = d3.csv("data/air_quality_CO.csv")
-temperature_data = d3.csv("data/annual_avg_temp.csv")
-emissions_data = d3.csv("data/emissions_totals.csv")
+temperature_data = d3.csv("data/annual_avg_temp_renewed.csv")
+emissions_data = d3.csv("data/emissions_totals_renewed.csv")
 
 fire = "Fire"
 air_quality = "Air Quality"
 
 main_data = air_quality
-
 draw = true
 
 function init(){
-  if (main_data=="Air Quality") line_chart(air_quality_data);
-  else if (main_data=="Fire") line_chart(fire_data);
+  //if (main_data=="Air Quality") line_chart(air_quality_data);
+  //else if (main_data=="Fire") line_chart(fire_data);
 
-  if (draw){
-    parallelCoordinatesChart()
-    draw=false
+  if(draw){
+    d3.csv("data/mergedAverages.csv").then((data) =>{
+      parallelCoordinatesBrush(data);
+    })
+    .catch((error) =>{
+        console.log(error);
+    });
+    draw = false;
+
+    Promise.all([d3.json("data/countries.json"), d3.csv("data/annual_avg_temp_renewed.csv")]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      gen_geo_map();
+  });
+    
   }
 }
 
@@ -26,78 +37,156 @@ function updateData(data_name) {
 }
 
 function updateData_air_quality(svg) {
-  
   lineChart_air_quality()
 }
-function parallelCoordinatesChart() {
 
-  // set the dimensions and margins of the graph
-  const margin = {top: 30, right: 10, bottom: 10, left: 0},
-  width = 500 - margin.left - margin.right,
-  height = 400 - margin.top - margin.bottom;
+function gen_geo_map(){
+  var height = 380;
+  var margin = ({top: 30, right: 10, bottom: 30, left: 10});
+  var width = 700 - margin.left - margin.right;
+  var year = '2018';
 
-  // append the svg object to the body of the page
-  const svg = d3.select("#parallelCoordinates")
-  .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          `translate(${margin.left},${margin.top})`);
-
-  d3.csv("data/merge_air_fires.csv").then( function(data) {    
-    // Extract the list of dimensions we want to keep in the plot. Here I keep all except the column called Country
-    dimensions = Object.keys(data[0]).filter(function(d) { return d != "Country" & d!="Year"})
-    console.log(dimensions)
+  var year_data = dataset.find(c => c.Year === year) ;
+  console.log(year_data);
   
-    // For each dimension, I build a linear scale. I store all in a y object
-    var y = {}
-    for (i in dimensions) {
-      var name = dimensions[i]
-      y[name] = d3.scaleLinear()
-        .domain( d3.extent(data, function(d) { return +d[name]; }) )
-        .range([height, 0])
-    }
-    
-    // Build the X scale -> it find the best position for each Y axis
-    x = d3.scalePoint()
-      .range([0, width])
-      .padding(1)
-      .domain(dimensions);
+  let colorScale = d3
+      .scaleLinear()
+      .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
 
-    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
-    function path(d) {
-      return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
-    }
 
-    // Draw the lines
-    svg
-      .selectAll("myPath")
-      .data(data)
-      .enter().append("path")
-      .attr("d",  path)
-      .style("fill", "none")
-      .style("stroke", "#69b3a2")
-      .style("opacity", 0.5)
-// Draw the axis:
-    svg.selectAll("myAxis")
-      // For each dimension of the dataset I add a 'g' element:
-      .data(dimensions).enter()
-      .append("g")
-      // I translate this element to its right position on the x axis
-      .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-      // And I build the axis with the call function
-      .each(function(d) { d3.select(this).call(d3.axisLeft().scale(y[d])); })
-      // Add axis title
-      .append("text")
-        .style("text-anchor", "middle")
-        .attr("y", -9)
-        .text(function(d) { return d; })
-        .style("fill", "black")
-  })
+  var projection = d3
+      .geoMercator()
+      .scale(height)
+      .rotate([0,0])
+      .center([10, 32])
+      .translate([width/2, height]);
+
+  var path = d3.geoPath().projection(projection);
+
+
+  d3.select("#map")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .selectAll("path")
+      .data(topojson.feature(topology, topology.objects.europe).features)
+      .join("path")
+      .attr("class", "country")
+      .attr("d", path)
+      .attr("id", function(d, i){
+          return d.properties.name;
+      })
+      .attr("fill", function (d){
+          var country = dataset.find(c => c.Country === d.properties.name)  
+          if(country){
+              var colorVal = colorScale(country.Value);
+              return d3.interpolateBuPu(colorVal);
+          }    
+          else{
+              return "gray";
+      }})
+      .append("title")
+      .text( function (d){
+          return d.properties.name;
+      })
 }
-  
 
+function parallelCoordinatesBrush(data){
+  var keys;
+  var height;
+  var margin = ({top: 30, right: 10, bottom: 30, left: 10});
+  var width = 500 - margin.left - margin.right;
+  var brushHeight = 40;
+
+
+  keys = data.columns.slice(1);
+  height = keys.length * 80;
+  //x = new Map(Array.from(keys, key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [margin.left, width - margin.right])]))
+  var x = {}
+  for (i in keys) {
+    n = keys[i]
+    if(n =='Fires'){
+      x[n] = d3.scaleLinear()
+      .domain( d3.extent(data, function(d) { return +d[n]; }) )
+      .range([margin.left, width]);
+    }
+    else{
+      x[n] = d3.scaleLinear()
+      .domain( d3.extent(data, function(d) { return +d[n]; }) )
+      .range([margin.left, width]);
+    }
+  }
+
+  y = d3.scalePoint(keys, [margin.top, height]);
+   
+  var deselectedColor = "#ddd";
+  label = d => d.name;
+
+  line = d3.line()
+    .defined(([, value]) => value != null)
+    .x(([key, value]) => x[key](value))
+    .y(([key]) => y(key));
+    
+  const svg = d3.select("#parallelCoordinates")
+                .append("svg")
+                .style("width", width+20)
+                .style("height", height+20);
+
+  const brush = d3.brushX()
+      .extent([
+        [margin.left, -(brushHeight / 2)],
+        [width - margin.right, brushHeight / 2]
+      ])
+      .on("start brush end", brushed);
+
+  const path = svg.append("g")
+      .attr("fill", "none")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-opacity", 0.4)
+    .selectAll("path")
+    .data(data)
+    .join("path")
+      .attr("stroke", "steelblue")
+      .attr("d", d => line(d3.cross(keys, [d], (key, d) => [key, d[key]])));
+
+
+    svg.append("g")
+    .selectAll("g")
+    .data(keys)
+    .join("g")
+      .attr("transform", d => `translate(0,${y(d)})`)
+      .each(function(d) { d3.select(this).call(d3.axisBottom(x[d])); })
+      .call(g => g.append("text")
+        .attr("x", margin.left)
+        .attr("y", -6)
+        .attr("text-anchor", "start")
+        .attr("fill", "currentColor")
+        .style("width", width)
+        .text(d => d))
+      .call(g => g.selectAll("text")
+        .clone(true).lower()
+        .attr("fill", "none")
+        .attr("stroke-width", 5)
+        .attr("stroke-linejoin", "round")
+        .attr("stroke", "white"))
+      .call(brush);
+
+  const selections = new Map();
+
+  function brushed({selection}, key) {
+    if (selection === null) selections.delete(key);
+    else selections.set(key, selection.map(x[key].invert));
+    const selected = [];
+    path.each(function(d) {
+      const active = Array.from(selections).every(([key, [min, max]]) => d[key] >= min && d[key] <= max);
+      d3.select(this).style("stroke", active ? "steelblue" : deselectedColor);
+      if (active) {
+        d3.select(this).raise();
+        selected.push(d);
+      }
+    });
+  }
+}
 
 function line_chart(data) {
 
