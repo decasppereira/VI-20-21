@@ -2,6 +2,7 @@ fire_data = d3.csv("data/fires_hectars.csv")
 air_quality_data = d3.csv("data/air_quality_CO.csv")
 temperature_data = d3.csv("data/annual_avg_temp_renewed.csv")
 emissions_data = d3.csv("data/emissions_totals_renewed.csv")
+topology = d3.json("data/countries.json")
 
 fire = "Fire"
 air_quality = "Air Quality"
@@ -12,6 +13,9 @@ fireColor = "orange"
 airQColor = "purple"
 tempColor = "red"
 emiColor = "gray"
+
+
+
 
 main_data = air_quality
 
@@ -26,21 +30,42 @@ const margin = {top: 10, right: 50, bottom: 30, left: 50},
   width = 800 - margin.left - margin.right,
   height = 350 - margin.top - margin.bottom;
 
-  if (main_data=="Air Quality" && !isUpdate){
+  if (main_data=="Air Quality" && isUpdate == false ){
     lineColor = airQColor;
     line_chart(air_quality_data);
+    Promise.all([topology, air_quality_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      gen_geo_map();
+  });
+
   } 
-  else if (main_data=="Fire"){
+  else if (main_data=="Fire" && isUpdate == false){
     lineColor = fireColor;
     line_chart(fire_data);
+    Promise.all([topology, fire_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      gen_geo_map();
+  });
   }
-  else if (main_data=="Temperature"){
+  else if (main_data=="Temperature" && isUpdate == false){
     lineColor = tempColor;
     line_chart(temperature_data);
+    Promise.all([topology, temperature_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      gen_geo_map();
+  });
   }
-  else if (main_data=="Emissions"){
+  else if (main_data=="Emissions" && isUpdate == false){
     lineColor = emiColor;
     line_chart(emissions_data);
+    Promise.all([topology, emissions_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      gen_geo_map();
+  });
   }
 
   d3.csv("data/mergedAverages.csv").then((data) =>{
@@ -51,59 +76,104 @@ const margin = {top: 10, right: 50, bottom: 30, left: 50},
   });
   draw = false;
 
-  Promise.all([d3.json("data/countries.json"), d3.csv("data/annual_avg_temp_renewed.csv")]).then(function ([map, data]){
-    topology = map;
-    dataset = data;
-    gen_geo_map();
-});
 
 
 function gen_geo_map(){
-  var year = '2018';
 
-  var year_data = dataset.find(c => c.Year === year) ;
-  console.log(year_data);
+  if (isUpdate){
+    var year = '2018';
+
+    var year_data = dataset.find(c => c.Year === year) ;
+    console.log(year_data);
+    
+    let colorScale = d3
+        .scaleLinear()
+        .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
   
-  let colorScale = d3
-      .scaleLinear()
-      .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
+  
+    var projection = d3
+        .geoMercator()
+        .scale(height)
+        .rotate([0,0])
+        .center([10, 32])
+        .translate([width/2, height]);
+  
+    var path = d3.geoPath().projection(projection);
+    
+        d3.select("#map")
+        .attr("width", width)
+        .attr("height", height)
+        .selectAll("path")
+        .data(topojson.feature(topology, topology.objects.europe).features)
+        .join("path")
+        .attr("class", "country")
+        .attr("d", path)
+        .attr("id", function(d, i){
+            return d.properties.name;
+        })
+        .attr("fill", function (d){
+            var country = dataset.find(c => c.Country === d.properties.name)  
+            if(country){
+                var colorVal = colorScale(country.Value);
+                return d3.interpolateYlOrBr(colorVal);
+            }    
+            else{
+                return "gray";
+        }})
+        .append("title")
+        .text( function (d){
+            return d.properties.name;
+        })
 
+  }
 
-  var projection = d3
-      .geoMercator()
-      .scale(height)
-      .rotate([0,0])
-      .center([10, 32])
-      .translate([width/2, height]);
+  else {
+    var year = '2018';
 
-  var path = d3.geoPath().projection(projection);
-
-
-  d3.select("#map")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .selectAll("path")
-      .data(topojson.feature(topology, topology.objects.europe).features)
-      .join("path")
-      .attr("class", "country")
-      .attr("d", path)
-      .attr("id", function(d, i){
-          return d.properties.name;
-      })
-      .attr("fill", function (d){
-          var country = dataset.find(c => c.Country === d.properties.name)  
-          if(country){
-              var colorVal = colorScale(country.Value);
-              return d3.interpolateYlOrBr(colorVal);
-          }    
-          else{
-              return "gray";
-      }})
-      .append("title")
-      .text( function (d){
-          return d.properties.name;
-      })
+    var year_data = dataset.find(c => c.Year === year) ;
+    
+    let colorScale = d3
+        .scaleLinear()
+        .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
+  
+  
+    var projection = d3
+        .geoMercator()
+        .scale(height)
+        .rotate([0,0])
+        .center([10, 32])
+        .translate([width/2, height]);
+  
+    var path = d3.geoPath().projection(projection);
+  
+  
+    d3.select("#map")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .selectAll("path")
+        .data(topojson.feature(topology, topology.objects.europe).features)
+        .join("path")
+        .attr("class", "country")
+        .attr("d", path)
+        .attr("id", function(d, i){
+            return d.properties.name;
+        })
+        .attr("fill", function (d){
+            var country = dataset.find(c => c.Country === d.properties.name)  
+            if(country){
+                var colorVal = colorScale(country.Value);
+                return d3.interpolateYlOrBr(colorVal);
+            }    
+            else{
+                return "gray";
+        }})
+        .append("title")
+        .text( function (d){
+            return d.properties.name;
+        })
+  }
+  
 }
 
 function parallelCoordinatesBrush(data){
@@ -213,28 +283,54 @@ function update(data) {
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
     lineColor = airQColor;
+    Promise.all([topology, air_quality_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      isUpdate = true
+      gen_geo_map();
+  });
+  isUpdate = false
   } 
   else if (main_data=="Fire"){
      line_chart(fire_data);
      lineColor = fireColor;
+     Promise.all([topology, fire_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      isUpdate = true
+      gen_geo_map();
+  });
+  isUpdate = false
   }
 
   else if (main_data=="Emissions"){
     line_chart(emissions_data);
     lineColor = emiColor;
+    Promise.all([topology, emissions_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      isUpdate = true
+      gen_geo_map();
+  });
+  isUpdate = false
   }
 
   else if (main_data=="Temperature"){
     line_chart(temperature_data);
     lineColor = tempColor;
+    Promise.all([topology, temperature_data]).then(function ([map, data]){
+      topology = map;
+      dataset = data;
+      isUpdate = true
+      gen_geo_map();
+  });
+  isUpdate = false
   }
 }
 
 function line_chart(data) {
 
   if (isUpdate){
-    isUpdate=false
-
     data.then( function(data) {
       sumstat = d3.group(data, d => d.Country);
       svg_line_chart = d3.select("div#line_chart")
