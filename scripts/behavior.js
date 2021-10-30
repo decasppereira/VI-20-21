@@ -9,10 +9,10 @@ air_quality = "Air Quality"
 temperature = "Temperature"
 emissions = "Emissions"
 
-fireColor = "orange"
-airQColor = "purple"
-tempColor = "red"
-emiColor = "gray"
+fireColor = "#f05d5d"
+airQColor = "#d3a2e8"
+tempColor = "#ffd86b"
+emiColor = "#8acf99"
 
 
 
@@ -204,7 +204,7 @@ function parallelCoordinatesBrush(data){
 
   y = d3.scalePoint(keys, [margin.top, height]);
    
-  var deselectedColor = "#ddd";
+  var deselectedColor = "#77777a";
   label = d => d.name;
 
   line = d3.line()
@@ -231,7 +231,7 @@ function parallelCoordinatesBrush(data){
     .selectAll("path")
     .data(data)
     .join("path")
-      .attr("stroke", "steelblue")
+      .attr("stroke", "#639eeb")
       .attr("d", d => line(d3.cross(keys, [d], (key, d) => [key, d[key]])));
 
 
@@ -267,7 +267,7 @@ function parallelCoordinatesBrush(data){
     const selected = [];
     path.each(function(d) {
       const active = Array.from(selections).every(([key, [min, max]]) => d[key] >= min && d[key] <= max);
-      d3.select(this).style("stroke", active ? "steelblue" : deselectedColor);
+      d3.select(this).style("stroke", active ? "#639eeb" : deselectedColor);
       if (active) {
         d3.select(this).raise();
         selected.push(d);
