@@ -14,6 +14,12 @@ airQColor = "#d3a2e8"
 tempColor = "#ffd86b"
 emiColor = "#8acf99"
 
+air_quality_text = "CO quantity (mg/m\u00B3)"
+emissions_text = "Emissions (%)"
+temperature_text = "Annual Average Temperature (\u00B0C)"
+fires_text = "Area burned (ha)"
+
+
 
 
 
@@ -77,6 +83,25 @@ const margin = {top: 10, right: 50, bottom: 30, left: 50},
   draw = false;
 
 
+function change_y_text(){
+  if (main_data == air_quality){
+    y_text = air_quality_text
+  }
+
+  else if (main_data == fire){
+    y_text = fires_text
+  }
+
+  else if (main_data == temperature){
+    y_text = temperature_text
+  }
+
+  else if (main_data == emissions){
+    y_text = emissions_text
+  }
+  return y_text
+}
+
 
 function gen_geo_map(){
 
@@ -84,7 +109,6 @@ function gen_geo_map(){
     var year = '2018';
 
     var year_data = dataset.find(c => c.Year === year) ;
-    console.log(year_data);
     
     let colorScale = d3
         .scaleLinear()
@@ -330,6 +354,9 @@ function update(data) {
 
 function line_chart(data) {
 
+  var y_text = change_y_text()
+
+
   if (isUpdate){
     data.then( function(data) {
       sumstat = d3.group(data, d => d.Country);
@@ -397,9 +424,9 @@ function line_chart(data) {
     svg_line_chart = d3.select("div#line_chart")
     .append("svg")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height +  margin.bottom)
+      .attr("height", height +  margin.bottom+50)
     .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("transform", `translate(${margin.left+15},${margin.top})`);
   
     x_line = d3.scaleLinear()
       //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
@@ -417,6 +444,14 @@ function line_chart(data) {
         .attr("color", "white")
       );
 
+    svg_line_chart.append("text")
+      .attr("transform",
+      "translate(" + (width/2) + " ," + 
+                    (height+30 + margin.top) + ")")
+      .style('fill', 'white')
+      .style("text-anchor", "middle")
+      .text("Year")
+
     // Add Y axis
     y_line = d3.scaleLinear()
     .domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value; })])
@@ -432,6 +467,14 @@ function line_chart(data) {
         .attr("color", "white")
       );
 
+      svg_line_chart.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left -17)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .style('fill', 'white')
+      .text("Value"); 
 
     // Initialize line with group a
     svg_line_chart.selectAll(".line")
