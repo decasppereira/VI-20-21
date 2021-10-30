@@ -8,6 +8,11 @@ air_quality = "Air Quality"
 temperature = "Temperature"
 emissions = "Emissions"
 
+fireColor = "orange"
+airQColor = "purple"
+tempColor = "red"
+emiColor = "gray"
+
 main_data = air_quality
 
 isUpdate = false
@@ -18,20 +23,25 @@ var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
 var selectedButtonColor ="#ba8fff";
 
 const margin = {top: 10, right: 50, bottom: 30, left: 50},
-  width = 1000 - margin.left - margin.right,
-  height = 400 - margin.top - margin.bottom;
+  width = 800 - margin.left - margin.right,
+  height = 350 - margin.top - margin.bottom;
 
   if (main_data=="Air Quality" && !isUpdate){
-    
+    lineColor = airQColor;
     line_chart(air_quality_data);
-   
   } 
-  else if (main_data=="Fire") line_chart(fire_data);
-
-  else if (main_data=="Temperature") line_chart(temperature_data);
-
-  else if (main_data=="Emissions") line_chart(emissions_data);
-
+  else if (main_data=="Fire"){
+    lineColor = fireColor;
+    line_chart(fire_data);
+  }
+  else if (main_data=="Temperature"){
+    lineColor = tempColor;
+    line_chart(temperature_data);
+  }
+  else if (main_data=="Emissions"){
+    lineColor = emiColor;
+    line_chart(emissions_data);
+  }
 
   d3.csv("data/mergedAverages.csv").then((data) =>{
     parallelCoordinatesBrush(data);
@@ -64,7 +74,7 @@ function gen_geo_map(){
       .scale(height)
       .rotate([0,0])
       .center([10, 32])
-      .translate([width/4, height]);
+      .translate([width/2, height]);
 
   var path = d3.geoPath().projection(projection);
 
@@ -85,7 +95,7 @@ function gen_geo_map(){
           var country = dataset.find(c => c.Country === d.properties.name)  
           if(country){
               var colorVal = colorScale(country.Value);
-              return d3.interpolateBuPu(colorVal);
+              return d3.interpolateYlOrBr(colorVal);
           }    
           else{
               return "gray";
@@ -97,15 +107,15 @@ function gen_geo_map(){
 }
 
 function parallelCoordinatesBrush(data){
-  var keys;
   var height;
+  var keys;
   var margin = ({top: 30, right: 10, bottom: 30, left: 10});
   var width = 500 - margin.left - margin.right;
   var brushHeight = 40;
 
 
   keys = data.columns.slice(1);
-  height = keys.length * 80;
+  height = keys.length * 70;
   //x = new Map(Array.from(keys, key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [margin.left, width - margin.right])]))
   var x = {}
   for (i in keys) {
@@ -160,20 +170,23 @@ function parallelCoordinatesBrush(data){
     .data(keys)
     .join("g")
       .attr("transform", d => `translate(0,${y(d)})`)
-      .each(function(d) { d3.select(this).call(d3.axisBottom(x[d])); })
+      .each(function(d) { 
+        d3.select(this)
+          .call(d3.axisBottom(x[d])); 
+      })
+      .call(g => g.select('.domain')
+        .attr("stroke","white")
+        .attr("stroke-width","1.5"))
       .call(g => g.append("text")
         .attr("x", margin.left)
         .attr("y", -6)
         .attr("text-anchor", "start")
-        .attr("fill", "currentColor")
+        .attr("fill", "white")
         .style("width", width)
         .text(d => d))
-      .call(g => g.selectAll("text")
-        .clone(true).lower()
-        .attr("fill", "none")
-        .attr("stroke-width", 5)
-        .attr("stroke-linejoin", "round")
-        .attr("stroke", "white"))
+      .call(g => g.selectAll('.tick')
+        .attr("color", "white")
+      )
       .call(brush);
 
   const selections = new Map();
@@ -199,51 +212,138 @@ function update(data) {
   
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
-   
+    lineColor = airQColor;
   } 
   else if (main_data=="Fire"){
      line_chart(fire_data);
+     lineColor = fireColor;
   }
 
   else if (main_data=="Emissions"){
     line_chart(emissions_data);
+    lineColor = emiColor;
   }
 
   else if (main_data=="Temperature"){
     line_chart(temperature_data);
+    lineColor = tempColor;
   }
 }
 
 function line_chart(data) {
 
-if (isUpdate){
-  isUpdate=false
+  if (isUpdate){
+    isUpdate=false
 
-  data.then( function(data) {
-    sumstat = d3.group(data, d => d.Country);
-    svg_line_chart = d3.select("div#line_chart")
-    
-    x_line.domain([d3.min(data, function(d) { return d.Year }), d3.max(data, function(d) { return d.Year }) ]);
-    svg_line_chart.selectAll(".myXaxis").transition()
-    .duration(1000)
-    .call(d3.axisBottom(x_line));
-
-    y_line.domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value  }) ]);
-    svg_line_chart.selectAll(".myYaxis")
-      .transition()
+    data.then( function(data) {
+      sumstat = d3.group(data, d => d.Country);
+      svg_line_chart = d3.select("div#line_chart")
+      
+      x_line.domain([d3.min(data, function(d) { return d.Year }), d3.max(data, function(d) { return d.Year }) ]);
+      svg_line_chart.selectAll(".myXaxis").transition()
       .duration(1000)
-      .call(d3.axisLeft(y_line));
-    
-    svg_line_chart
-    .selectAll(".line")
-    .data(sumstat)
-    .join(
-      (enter) => {
-        return enter
-        .append("path")
+      .call(d3.axisBottom(x_line))
+      .call(g => g.selectAll('.tick')
+        .attr("color", "white")
+      );
+
+      y_line.domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value  }) ]);
+      svg_line_chart.selectAll(".myYaxis")
+        .transition()
+        .duration(1000)
+        .call(d3.axisLeft(y_line))
+        .call(g => g.selectAll('.tick')
+        .attr("color", "white")
+      );
+      
+      svg_line_chart
+      .selectAll(".line")
+      .data(sumstat)
+      .join(
+        (enter) => {
+          return enter
+          .append("path")
+          .attr("class","line")
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 1.5)
+          .attr("d", function(d){
+            return d3.line()
+              .x(function(d) { return x_line(d["Year"]); })
+              .y(function(d) { return y_line(+d["Value"]); })
+              (d[1])
+          })
+        },
+        (update) => {
+          update
+            .transition()
+            .duration(750)
+            .attr("d", function(d){
+              return d3.line()
+                .x(function(d) { return x_line(d["Year"]); })
+                .y(function(d) { return y_line(+d["Value"]); })
+                (d[1])
+            }).attr("stroke", lineColor);
+        },
+        (exit) => {
+          return exit.remove();
+        }
+      );
+    })
+  }
+
+  else{
+    //Read the data
+  data.then( function(data) {
+
+    const sumstat = d3.group(data, d => d.Country);
+
+    svg_line_chart = d3.select("div#line_chart")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height +  margin.bottom)
+    .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+  
+    x_line = d3.scaleLinear()
+      //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
+      .domain(d3.extent(data, function(d) { return d.Year;}))
+      .range([ 0, width ]);
+
+    svg_line_chart.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .attr("class","myXaxis")
+      .call(d3.axisBottom(x_line).ticks(21))
+      .call(g => g.select('.domain')
+        .attr("stroke","white")
+        .attr("stroke-width","1.5"))
+      .call(g => g.selectAll('.tick')
+        .attr("color", "white")
+      );
+
+    // Add Y axis
+    y_line = d3.scaleLinear()
+    .domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value; })])
+      .range([ height, 0 ]);
+
+    svg_line_chart.append("g")
+      .attr("class","myYaxis")
+      .call(d3.axisLeft(y_line))
+      .call(g => g.select('.domain')
+        .attr("stroke","white")
+        .attr("stroke-width","1.5"))
+      .call(g => g.selectAll('.tick')
+        .attr("color", "white")
+      );
+
+
+    // Initialize line with group a
+    svg_line_chart.selectAll(".line")
+      .data(sumstat)
+      .join("path")
         .attr("class","line")
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", lineColor)
         .attr("stroke-width", 1.5)
         .attr("d", function(d){
           return d3.line()
@@ -251,73 +351,9 @@ if (isUpdate){
             .y(function(d) { return y_line(+d["Value"]); })
             (d[1])
         })
-      },
-      (update) => {
-        update
-          .transition()
-          .duration(750)
-          .attr("d", function(d){
-            return d3.line()
-              .x(function(d) { return x_line(d["Year"]); })
-              .y(function(d) { return y_line(+d["Value"]); })
-              (d[1])
-          })
-      },
-      (exit) => {
-        return exit.remove();
-      }
-    );
+    
   })
-}
-
-else{
-  //Read the data
-data.then( function(data) {
-
-  const sumstat = d3.group(data, d => d.Country);
-
-  svg_line_chart = d3.select("div#line_chart")
-  .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
- 
-  x_line = d3.scaleLinear()
-    //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
-    .domain(d3.extent(data, function(d) { return d.Year;}))
-    .range([ 0, width ]);
-    svg_line_chart.append("g")
-    .attr("transform", `translate(0, ${height})`)
-    .attr("class","myXaxis")
-    .call(d3.axisBottom(x_line).ticks(21));
-
-  // Add Y axis
-  y_line = d3.scaleLinear()
-  .domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value; })])
-    .range([ height, 0 ]);
-    svg_line_chart.append("g")
-    .attr("class","myYaxis")
-    .call(d3.axisLeft(y_line));
-
-  // Initialize line with group a
-  svg_line_chart.selectAll(".line")
-    .data(sumstat)
-    .join("path")
-      .attr("class","line")
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", function(d){
-        return d3.line()
-          .x(function(d) { return x_line(d["Year"]); })
-          .y(function(d) { return y_line(+d["Value"]); })
-          (d[1])
-      })
-  // A function that update the chart
-})
-}
-
+  }
 
 
 }
