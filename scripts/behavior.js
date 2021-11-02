@@ -363,8 +363,7 @@ function line_chart(data) {
       svg_line_chart = d3.select("div#line_chart")
       
       x_line.domain([d3.min(data, function(d) { return d.Year }), d3.max(data, function(d) { return d.Year }) ]);
-      svg_line_chart.selectAll(".myXaxis").transition()
-      .duration(1000)
+      svg_line_chart.selectAll(".myXaxis")
       .call(d3.axisBottom(x_line))
       .call(g => g.selectAll('.tick')
         .attr("color", "white")
@@ -372,8 +371,6 @@ function line_chart(data) {
 
       y_line.domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value  }) ]);
       svg_line_chart.selectAll(".myYaxis")
-        .transition()
-        .duration(1000)
         .call(d3.axisLeft(y_line))
         .call(g => g.selectAll('.tick')
         .attr("color", "white")
