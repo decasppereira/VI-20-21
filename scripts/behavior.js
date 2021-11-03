@@ -19,6 +19,8 @@ emissions_text = "Emissions (%)"
 temperature_text = "Annual Average Temperature (\u00B0C)"
 fires_text = "Area burned (ha)"
 
+dark_grey = "#696969"
+
 main_data = air_quality
 
 isUpdate = false
@@ -102,9 +104,32 @@ function gen_geo_map(){
 
   if (isUpdate){
     var year = '2018';
-
     var year_data = dataset.filter(c => c.Year === year) ;
     
+    let mouseOver = function(d) {
+      d3.selectAll(".country")
+      .transition()
+      .duration(200)
+      .style("opacity", .2)
+
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style("opacity", 1)
+        .style("stroke", "black")
+    }
+  
+    let mouseLeave = function(d) {
+      d3.selectAll(".country")
+        .transition()
+        .duration(200)
+        .style("opacity", .8)
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style("stroke", "black")
+    }
+
     let colorScale = d3
         .scaleLinear()
         .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
@@ -129,24 +154,52 @@ function gen_geo_map(){
         .attr("id", function(d, i){
             return d.properties.name;
         })
+        .style("stroke", "black")
         .attr("fill", function (d){
             var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
-                console.log(country.Year);
                 var colorVal = colorScale(country.Value);
                 return d3.interpolateYlOrBr(colorVal);
             }    
             else{
                 return "gray";
         }})
+        .on("mouseover", mouseOver )
+        .on("mouseleave", mouseLeave )
         .append("title")
         .text( function (d){
             return d.properties.name;
         })
 
+
   }
 
   else {
+
+    let mouseOver = function(d) {
+      d3.selectAll(".country")
+      .transition()
+      .duration(200)
+      .style("opacity", .2)
+
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style("opacity", 1)
+        .style("stroke", "black")
+    }
+  
+    let mouseLeave = function(d) {
+      d3.selectAll(".country")
+        .transition()
+        .duration(200)
+        .style("opacity", 1)
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style("stroke", "black")
+    }
+
     var year = '2018';
 
     var year_data = dataset.filter(c => c.Year === year) ;
@@ -178,6 +231,7 @@ function gen_geo_map(){
         .attr("id", function(d, i){
             return d.properties.name;
         })
+        .style("stroke", "black")
         .attr("fill", function (d){
           var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
@@ -187,6 +241,8 @@ function gen_geo_map(){
             else{
                 return "gray";
         }})
+        .on("mouseover", mouseOver )
+        .on("mouseleave", mouseLeave )
         .append("title")
         .text( function (d){
             return d.properties.name;
@@ -388,6 +444,7 @@ function line_chart(data) {
               .x(function(d) { return x_line(d["Year"]); })
               .y(function(d) { return y_line(+d["Value"]); })
               (d[1])
+              
           })
         },
         (update) => {
@@ -398,6 +455,7 @@ function line_chart(data) {
               return d3.line()
                 .x(function(d) { return x_line(d["Year"]); })
                 .y(function(d) { return y_line(+d["Value"]); })
+                .curve(d3.curveMonotoneX)
                 (d[1])
             }).attr("stroke", lineColor);
         },
@@ -481,6 +539,7 @@ function line_chart(data) {
           return d3.line()
             .x(function(d) { return x_line(d["Year"]); })
             .y(function(d) { return y_line(+d["Value"]); })
+            .curve(d3.curveMonotoneX)
             (d[1])
         })
     
