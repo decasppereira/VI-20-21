@@ -1,7 +1,10 @@
+var colorScale;
+
 fire_data = d3.csv("data/fires_hectars.csv")
 air_quality_data = d3.csv("data/air_quality_CO.csv")
 temperature_data = d3.csv("data/annual_avg_temp_renewed.csv")
 emissions_data = d3.csv("data/emissions_totals_renewed.csv")
+
 topology = d3.json("data/countries.json")
 
 fire = "Fire"
@@ -14,6 +17,7 @@ airQColor = "#d3a2e8"
 tempColor = "#ffd86b"
 emiColor = "#8acf99"
 
+
 air_quality_text = "CO quantity (mg/m\u00B3)"
 emissions_text = "Emissions (%)"
 temperature_text = "Annual Average Temperature (\u00B0C)"
@@ -22,6 +26,7 @@ fires_text = "Area burned (ha)"
 dark_grey = "#696969"
 
 main_data = air_quality
+var year = '2018';
 
 isUpdate = false
 
@@ -31,55 +36,124 @@ var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
 var selectedButtonColor ="#ba8fff";
 
 const margin = {top: 10, right: 50, bottom: 30, left: 50},
-  width = 1300 - margin.left - margin.right,
-  height = 350  - margin.bottom;
+width = 1300 - margin.left - margin.right,
+height = 350  - margin.bottom;
 
-  if (main_data=="Air Quality" && isUpdate == false ){
-    lineColor = airQColor;
-    line_chart(air_quality_data);
+if (main_data=="Air Quality" && isUpdate == false ){
+  lineColor = airQColor;
+  line_chart(air_quality_data);
+  Promise.all([topology, air_quality_data]).then(function ([map, data]){
+    colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
+    topology = map;
+    dataset = data;
+    gen_geo_map();
+});
+
+} 
+else if (main_data=="Fire" && isUpdate == false){
+  lineColor = fireColor;
+  line_chart(fire_data);
+  Promise.all([topology, fire_data]).then(function ([map, data]){
+    topology = map;
+    dataset = data;
+    colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
+    gen_geo_map();
+});
+}
+else if (main_data=="Temperature" && isUpdate == false){
+  lineColor = tempColor;
+  line_chart(temperature_data);
+  Promise.all([topology, temperature_data]).then(function ([map, data]){
+    topology = map;
+    dataset = data;
+    colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
+    gen_geo_map();
+});
+}
+else if (main_data=="Emissions" && isUpdate == false){
+  lineColor = emiColor;
+  line_chart(emissions_data);
+  Promise.all([topology, emissions_data]).then(function ([map, data]){
+    topology = map;
+    dataset = data;
+    colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
+    gen_geo_map();
+});
+}
+
+d3.csv("data/mergedAverages.csv").then((data) =>{
+  parallelCoordinatesBrush(data);
+})
+.catch((error) =>{
+    console.log(error);
+});
+draw = false;
+
+function updateYear(y){
+  isUpdate = true;
+  if (main_data=="Air Quality"){
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
+      year = y;
       topology = map;
       dataset = data;
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
-  });
-
+    });
+  isUpdate = false
   } 
-  else if (main_data=="Fire" && isUpdate == false){
-    lineColor = fireColor;
-    line_chart(fire_data);
-    Promise.all([topology, fire_data]).then(function ([map, data]){
+  else if (main_data=="Fire"){
+     Promise.all([topology, fire_data]).then(function ([map, data]){
+      year = y;
       topology = map;
       dataset = data;
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
-  });
+    });
+  isUpdate = false
   }
-  else if (main_data=="Temperature" && isUpdate == false){
-    lineColor = tempColor;
-    line_chart(temperature_data);
-    Promise.all([topology, temperature_data]).then(function ([map, data]){
-      topology = map;
-      dataset = data;
-      gen_geo_map();
-  });
-  }
-  else if (main_data=="Emissions" && isUpdate == false){
-    lineColor = emiColor;
-    line_chart(emissions_data);
+
+  else if (main_data=="Emissions"){
     Promise.all([topology, emissions_data]).then(function ([map, data]){
+      year = y;
       topology = map;
       dataset = data;
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
-  });
+    });
+  isUpdate = false
   }
 
-  d3.csv("data/mergedAverages.csv").then((data) =>{
-    parallelCoordinatesBrush(data);
-  })
-  .catch((error) =>{
-      console.log(error);
-  });
-  draw = false;
-
+  else if (main_data=="Temperature"){
+    Promise.all([topology, temperature_data]).then(function ([map, data]){
+      year = y;
+      topology = map;
+      dataset = data;
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
+      gen_geo_map();
+    });
+  isUpdate = false
+  }
+}
 
 function change_y_text(){
   if (main_data == air_quality){
@@ -101,9 +175,7 @@ function change_y_text(){
 }
 
 function gen_geo_map(){
-
   if (isUpdate){
-    var year = '2018';
     var year_data = dataset.filter(c => c.Year === year) ;
     
     let mouseOver = function(d) {
@@ -129,10 +201,6 @@ function gen_geo_map(){
         .duration(200)
         .style("stroke", "black")
     }
-
-    let colorScale = d3
-        .scaleLinear()
-        .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
   
     var projection = d3
         .geoMercator()
@@ -158,6 +226,7 @@ function gen_geo_map(){
         .attr("fill", function (d){
             var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
+              console.log(country);
                 var colorVal = colorScale(country.Value);
                 return d3.interpolateYlOrBr(colorVal);
             }    
@@ -200,14 +269,7 @@ function gen_geo_map(){
         .style("stroke", "black")
     }
 
-    var year = '2018';
-
     var year_data = dataset.filter(c => c.Year === year) ;
-    
-    let colorScale = d3
-        .scaleLinear()
-        .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
-
     var projection = d3
         .geoMercator()
         .scale(height*1.3)
@@ -248,7 +310,6 @@ function gen_geo_map(){
             return d.properties.name;
         })
   }
-  
 }
 
 function parallelCoordinatesBrush(data){
@@ -362,7 +423,10 @@ function update(data) {
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
-      isUpdate = true
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
   });
   isUpdate = false
@@ -373,7 +437,10 @@ function update(data) {
      Promise.all([topology, fire_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
-      isUpdate = true
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
   });
   isUpdate = false
@@ -385,7 +452,10 @@ function update(data) {
     Promise.all([topology, emissions_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
-      isUpdate = true
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
   });
   isUpdate = false
@@ -397,7 +467,10 @@ function update(data) {
     Promise.all([topology, temperature_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
-      isUpdate = true
+      isUpdate = true;
+      colorScale = d3.scaleLinear()
+              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .range([0, 1]);
       gen_geo_map();
   });
   isUpdate = false
