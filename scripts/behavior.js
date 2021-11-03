@@ -108,25 +108,17 @@ function gen_geo_map(){
     
     let mouseOver = function(d) {
       d3.selectAll(".country")
-      .transition()
-      .duration(200)
       .style("opacity", .2)
 
       d3.select(this)
-        .transition()
-        .duration(200)
         .style("opacity", 1)
         .style("stroke", "black")
     }
   
     let mouseLeave = function(d) {
       d3.selectAll(".country")
-        .transition()
-        .duration(200)
         .style("opacity", .8)
       d3.select(this)
-        .transition()
-        .duration(200)
         .style("stroke", "black")
     }
 
@@ -178,25 +170,17 @@ function gen_geo_map(){
 
     let mouseOver = function(d) {
       d3.selectAll(".country")
-      .transition()
-      .duration(200)
       .style("opacity", .2)
 
       d3.select(this)
-        .transition()
-        .duration(200)
         .style("opacity", 1)
         .style("stroke", "black")
     }
   
     let mouseLeave = function(d) {
       d3.selectAll(".country")
-        .transition()
-        .duration(200)
         .style("opacity", 1)
       d3.select(this)
-        .transition()
-        .duration(200)
         .style("stroke", "black")
     }
 
@@ -410,8 +394,10 @@ function line_chart(data) {
 
 
   if (isUpdate){
+
     data.then( function(data) {
       sumstat = d3.group(data, d => d.Country);
+
       svg_line_chart = d3.select("div#line_chart")
       
       x_line.domain([d3.min(data, function(d) { return d.Year }), d3.max(data, function(d) { return d.Year }) ]);
@@ -427,7 +413,6 @@ function line_chart(data) {
         .call(g => g.selectAll('.tick')
         .attr("color", "white")
       );
-      
       svg_line_chart
       .selectAll(".line")
       .data(sumstat)
@@ -441,7 +426,7 @@ function line_chart(data) {
           .attr("stroke-width", 1.5)
           .attr("d", function(d){
             return d3.line()
-              .x(function(d) { return x_line(d["Year"]); })
+              .x(function(d) { return x_line(d["Year"]);  })
               .y(function(d) { return y_line(+d["Value"]); })
               (d[1])
               
