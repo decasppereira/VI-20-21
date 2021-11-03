@@ -19,10 +19,6 @@ emissions_text = "Emissions (%)"
 temperature_text = "Annual Average Temperature (\u00B0C)"
 fires_text = "Area burned (ha)"
 
-
-
-
-
 main_data = air_quality
 
 isUpdate = false
@@ -33,8 +29,8 @@ var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
 var selectedButtonColor ="#ba8fff";
 
 const margin = {top: 10, right: 50, bottom: 30, left: 50},
-  width = 800 - margin.left - margin.right,
-  height = 350 - margin.top - margin.bottom;
+  width = 1300 - margin.left - margin.right,
+  height = 350  - margin.bottom;
 
   if (main_data=="Air Quality" && isUpdate == false ){
     lineColor = airQColor;
@@ -102,30 +98,28 @@ function change_y_text(){
   return y_text
 }
 
-
 function gen_geo_map(){
 
   if (isUpdate){
     var year = '2018';
 
-    var year_data = dataset.find(c => c.Year === year) ;
+    var year_data = dataset.filter(c => c.Year === year) ;
     
     let colorScale = d3
         .scaleLinear()
         .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
   
-  
     var projection = d3
         .geoMercator()
-        .scale(height)
+        .scale(height*1.3)
         .rotate([0,0])
         .center([10, 32])
-        .translate([width/2, height]);
+        .translate([width/4, height*1.1]);
   
     var path = d3.geoPath().projection(projection);
     
         d3.select("#map")
-        .attr("width", width)
+        .attr("width", width/2)
         .attr("height", height)
         .selectAll("path")
         .data(topojson.feature(topology, topology.objects.europe).features)
@@ -136,8 +130,9 @@ function gen_geo_map(){
             return d.properties.name;
         })
         .attr("fill", function (d){
-            var country = dataset.find(c => c.Country === d.properties.name)  
+            var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
+                console.log(country.Year);
                 var colorVal = colorScale(country.Value);
                 return d3.interpolateYlOrBr(colorVal);
             }    
@@ -154,27 +149,27 @@ function gen_geo_map(){
   else {
     var year = '2018';
 
-    var year_data = dataset.find(c => c.Year === year) ;
+    var year_data = dataset.filter(c => c.Year === year) ;
     
     let colorScale = d3
         .scaleLinear()
         .domain([d3.min(dataset, (d) => d.Value), d3.max(dataset, (d) => d.Value)]).range([0, 1]);
-  
-  
+
     var projection = d3
         .geoMercator()
-        .scale(height)
+        .scale(height*1.3)
         .rotate([0,0])
         .center([10, 32])
-        .translate([width/2, height]);
+        .translate([width/4, height*1.1]);
   
     var path = d3.geoPath().projection(projection);
   
   
     d3.select("#map")
         .append("svg")
-        .attr("width", width)
+        .attr("width", width/2)
         .attr("height", height)
+        .attr("margin-right", margin.right)
         .selectAll("path")
         .data(topojson.feature(topology, topology.objects.europe).features)
         .join("path")
@@ -184,7 +179,7 @@ function gen_geo_map(){
             return d.properties.name;
         })
         .attr("fill", function (d){
-            var country = dataset.find(c => c.Country === d.properties.name)  
+          var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
                 var colorVal = colorScale(country.Value);
                 return d3.interpolateYlOrBr(colorVal);
@@ -203,8 +198,8 @@ function gen_geo_map(){
 function parallelCoordinatesBrush(data){
   var height;
   var keys;
-  var margin = ({top: 30, right: 10, bottom: 30, left: 10});
-  var width = 500 - margin.left - margin.right;
+  var margin = ({top: 50, right: 10, bottom: 30, left: 10});
+  //var width = 500 - margin.left - margin.right;
   var brushHeight = 40;
 
 
@@ -217,12 +212,12 @@ function parallelCoordinatesBrush(data){
     if(n =='Fires'){
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, width]);
+      .range([margin.left, width/2]);
     }
     else{
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, width]);
+      .range([margin.left, width/2]);
     }
   }
 
@@ -238,8 +233,9 @@ function parallelCoordinatesBrush(data){
     
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
-                .style("width", width+20)
-                .style("height", height+20);
+                .style("width", width/2+ 20)
+                .style("height", height+20)
+                .style("padding-left", 35);
 
   const brush = d3.brushX()
       .extent([
@@ -420,10 +416,10 @@ function line_chart(data) {
 
     svg_line_chart = d3.select("div#line_chart")
     .append("svg")
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", width + margin.left + margin.right + 200)
       .attr("height", height +  margin.bottom+50)
     .append("g")
-      .attr("transform", `translate(${margin.left+15},${margin.top})`);
+      .attr("transform", `translate(${margin.left+25},${margin.top})`);
   
     x_line = d3.scaleLinear()
       //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
