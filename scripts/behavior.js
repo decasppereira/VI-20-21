@@ -35,8 +35,11 @@ var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
 var selectedButtonColor ="#ba8fff";
 
 const margin = {top: 10, right: 50, bottom: 30, left: 50},
-width = 1300 - margin.left - margin.right,
-height = 350  - margin.bottom;
+//width = 1300 - margin.left - margin.right,
+//height = 350  - margin.bottom;
+width = window.innerWidth- margin.left - margin.right;
+height = window.innerHeight/2 - margin.bottom;
+//createCheckList(air_quality_data);
 
 if (main_data=="Air Quality" && isUpdate == false ){
   lineColor = airQColor;
@@ -197,7 +200,7 @@ function gen_geo_map(){
         .geoMercator()
         .scale((height))
         .rotate([0,0])
-        .center([10, 32])
+        .center([20, 32])
         .translate([width/5, height]);
   
     var path = d3.geoPath().projection(projection);
@@ -256,7 +259,7 @@ function gen_geo_map(){
         .geoMercator()
         .scale((height))
         .rotate([0,0])
-        .center([10, 32])
+        .center([20, 32])
         .translate([width/5, height]);
   
     var path = d3.geoPath().projection(projection);
@@ -299,11 +302,11 @@ function parallelCoordinatesBrush(data){
   var keys;
   var margin = ({top: 50, right: 10, bottom: 30, left: 10});
   //var width = 500 - margin.left - margin.right;
-  var brushHeight = 40;
+  var brushHeight = 30;
 
 
   keys = data.columns.slice(1);
-  height = keys.length * 70;
+  height = keys.length * 60 ;
   //x = new Map(Array.from(keys, key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [margin.left, width - margin.right])]))
   var x = {}
   for (i in keys) {
@@ -311,12 +314,12 @@ function parallelCoordinatesBrush(data){
     if(n =='Fires'){
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, width/2]);
+      .range([margin.left, 0.4*width]);
     }
     else{
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, width/2]);
+      .range([margin.left, 0.4*width]);
     }
   }
 
@@ -332,7 +335,7 @@ function parallelCoordinatesBrush(data){
     
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
-                .style("width", width/2+ 20)
+                .style("width", 0.4*width)
                 .style("height", height+20)
                 .style("padding-left", 35);
 
@@ -466,8 +469,6 @@ function update(data) {
 function line_chart(data) {
 
   var y_text = change_y_text()
-
-
   if (isUpdate){
 
     data.then( function(data) {
@@ -534,18 +535,18 @@ function line_chart(data) {
 
     svg_line_chart = d3.select("div#line_chart")
     .append("svg")
-      .attr("width", width + margin.left + margin.right + 200)
-      .attr("height", height +  margin.bottom+50)
+      .attr("width", width )
+      .attr("height", height )
     .append("g")
       .attr("transform", `translate(${margin.left+25},${margin.top})`);
   
     x_line = d3.scaleLinear()
       //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
       .domain(d3.extent(data, function(d) { return d.Year;}))
-      .range([ 0, width ]);
+      .range([ 0, 0.8*width ]);
 
     svg_line_chart.append("g")
-      .attr("transform", `translate(0, ${height})`)
+      .attr("transform", `translate(0, ${height+margin.bottom-86})`)
       .attr("class","myXaxis")
       .call(d3.axisBottom(x_line).ticks(21))
       .call(g => g.select('.domain')
@@ -557,8 +558,8 @@ function line_chart(data) {
 
     svg_line_chart.append("text")
       .attr("transform",
-      "translate(" + (width/2) + " ," + 
-                    (height+30 + margin.top) + ")")
+      "translate(" + (0.8/2*width) + " ," + 
+                    (height-30 + margin.top) + ")")
       .style('fill', 'white')
       .style("text-anchor", "middle")
       .text("Year")
@@ -566,7 +567,7 @@ function line_chart(data) {
     // Add Y axis
     y_line = d3.scaleLinear()
     .domain([d3.min(data, function(d) { return +d.Value; }), d3.max(data, function(d) { return +d.Value; })])
-      .range([ height, 0 ]);
+      .range([ 0.8*height, 0 ]);
 
     svg_line_chart.append("g")
       .attr("class","myYaxis")
@@ -581,7 +582,7 @@ function line_chart(data) {
       svg_line_chart.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 0 - margin.left -17)
-      .attr("x",0 - (height / 2))
+      .attr("x",0 - (0.8*height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .style('fill', 'white')
@@ -605,6 +606,24 @@ function line_chart(data) {
     
   })
   }
-
-
 }
+
+function createCheckList(data){
+  data.then(function (data){
+    d3.select("#checkList")
+      .data(data, function(d){
+        console.log(d['Country']);
+        //return d.Country;
+      })
+      .enter()
+      .append('label')
+          .attr('for',function(d,i){ return 'a'+i; })
+          .text(function(d) { return d; })
+      .append("input")
+          .attr("checked", true)
+          .attr("type", "checkbox")
+          .attr("id", function(d,i) { return 'a'+i; })
+          .attr("onClick", "change(this)");
+  });
+}
+

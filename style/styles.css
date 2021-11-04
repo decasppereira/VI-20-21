@@ -145,3 +145,15 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
   background: #f9fcff;
 }
+
+#checkList{
+  position:fixed;
+  top: 5%;
+  left: 85%;
+  width: 13%;
+  height: 93%;
+  background: #ece5d6;
+  padding: 10px;
+  border-radius: 25px;
+  box-sizing: border-box;
+}
