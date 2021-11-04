@@ -1,5 +1,3 @@
-var colorScale;
-
 fire_data = d3.csv("data/fires_hectars.csv")
 air_quality_data = d3.csv("data/air_quality_CO.csv")
 temperature_data = d3.csv("data/annual_avg_temp_renewed.csv")
@@ -16,14 +14,15 @@ fireColor = "#f05d5d"
 airQColor = "#d3a2e8"
 tempColor = "#ffd86b"
 emiColor = "#8acf99"
+dark_grey = "#696969"
 
+var colorScheme = d3.interpolateBuPu;
+var colorScale;
 
 air_quality_text = "CO quantity (mg/m\u00B3)"
 emissions_text = "Emissions (%)"
 temperature_text = "Annual Average Temperature (\u00B0C)"
 fires_text = "Area burned (ha)"
-
-dark_grey = "#696969"
 
 main_data = air_quality
 var year = '2018';
@@ -196,13 +195,12 @@ function gen_geo_map(){
   
     var projection = d3
         .geoMercator()
-        .scale(height*1.3)
+        .scale((height))
         .rotate([0,0])
         .center([10, 32])
-        .translate([width/4, height*1.1]);
+        .translate([width/5, height]);
   
     var path = d3.geoPath().projection(projection);
-    
         d3.select("#map")
         .attr("width", width/2)
         .attr("height", height)
@@ -220,7 +218,7 @@ function gen_geo_map(){
             if(country){
               console.log(country);
                 var colorVal = colorScale(country.Value);
-                return d3.interpolateYlOrBr(colorVal);
+                return colorScheme(colorVal);
             }    
             else{
                 return "gray";
@@ -256,10 +254,10 @@ function gen_geo_map(){
     var year_data = dataset.filter(c => c.Year === year) ;
     var projection = d3
         .geoMercator()
-        .scale(height*1.3)
+        .scale((height))
         .rotate([0,0])
         .center([10, 32])
-        .translate([width/4, height*1.1]);
+        .translate([width/5, height]);
   
     var path = d3.geoPath().projection(projection);
   
@@ -282,7 +280,7 @@ function gen_geo_map(){
           var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
                 var colorVal = colorScale(country.Value);
-                return d3.interpolateYlOrBr(colorVal);
+                return colorScheme(colorVal);
             }    
             else{
                 return "gray";
@@ -404,6 +402,7 @@ function update(data) {
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
     lineColor = airQColor;
+    colorScheme = d3.interpolateBuPu;
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
@@ -418,6 +417,7 @@ function update(data) {
   else if (main_data=="Fire"){
      line_chart(fire_data);
      lineColor = fireColor;
+     colorScheme = d3.interpolateReds;
      Promise.all([topology, fire_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
@@ -433,6 +433,7 @@ function update(data) {
   else if (main_data=="Emissions"){
     line_chart(emissions_data);
     lineColor = emiColor;
+    colorScheme = d3.interpolatePuBuGn;
     Promise.all([topology, emissions_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
@@ -448,6 +449,7 @@ function update(data) {
   else if (main_data=="Temperature"){
     line_chart(temperature_data);
     lineColor = tempColor;
+    colorScheme = d3.interpolateOranges;
     Promise.all([topology, temperature_data]).then(function ([map, data]){
       topology = map;
       dataset = data;
