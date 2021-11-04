@@ -2,7 +2,7 @@ fire_data = d3.csv("data/fires_hectars.csv")
 air_quality_data = d3.csv("data/air_quality_CO.csv")
 temperature_data = d3.csv("data/annual_avg_temp_renewed.csv")
 emissions_data = d3.csv("data/emissions_totals_renewed.csv")
-
+merged = d3.csv("data/mergedAverages.csv")
 topology = d3.json("data/countries.json")
 
 fire = "Fire"
@@ -39,7 +39,7 @@ const margin = {top: 10, right: 50, bottom: 30, left: 50},
 //height = 350  - margin.bottom;
 width = window.innerWidth- margin.left - margin.right;
 height = window.innerHeight/2 - margin.bottom;
-//createCheckList(air_quality_data);
+createCheckList(merged);
 
 if (main_data=="Air Quality" && isUpdate == false ){
   lineColor = airQColor;
@@ -610,20 +610,17 @@ function line_chart(data) {
 
 function createCheckList(data){
   data.then(function (data){
-    d3.select("#checkList")
-      .data(data, function(d){
-        console.log(d['Country']);
-        //return d.Country;
-      })
-      .enter()
-      .append('label')
-          .attr('for',function(d,i){ return 'a'+i; })
-          .text(function(d) { return d; })
-      .append("input")
-          .attr("checked", true)
-          .attr("type", "checkbox")
-          .attr("id", function(d,i) { return 'a'+i; })
-          .attr("onClick", "change(this)");
+    d3.select("div#checkList")
+      .data(data)
+      .join("country")
+        .append('label')
+            .attr('for',function(d,i){ return 'a'+i; })
+            .text(function(d) { return d.Country; })
+        .append("input")
+            .attr("checked", true)
+            .attr("type", "checkbox")
+            .attr("id", function(d) { return d.Country ; })
+            .attr("onClick", "change(this)");
   });
 }
 

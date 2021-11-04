@@ -62,6 +62,10 @@ body{
   width: 65%;
 }
 
+.label{
+  position:relative;
+}
+
 input[type=range] {
   -webkit-appearance: none;
   margin: 10px 0;
