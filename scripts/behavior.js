@@ -19,13 +19,16 @@ dark_grey = "#696969"
 var colorScheme = d3.interpolateBuPu;
 var colorScale;
 
+var min_scroll,max_scroll
+
+
 air_quality_text = "CO quantity (mg/m\u00B3)"
 emissions_text = "Emissions (%)"
 temperature_text = "Annual Average Temperature (\u00B0C)"
 fires_text = "Area burned (ha)"
 
-main_data = air_quality
-var year = '2018';
+main_data = temperature
+var year
 
 isUpdate = false
 
@@ -44,6 +47,7 @@ createCheckList(merged);
 if (main_data=="Air Quality" && isUpdate == false ){
   lineColor = airQColor;
   line_chart(air_quality_data);
+  
   Promise.all([topology, air_quality_data]).then(function ([map, data]){
     colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
@@ -52,8 +56,9 @@ if (main_data=="Air Quality" && isUpdate == false ){
     dataset = data;
     gen_geo_map();
 });
+}
 
-} 
+
 else if (main_data=="Fire" && isUpdate == false){
   lineColor = fireColor;
   line_chart(fire_data);
@@ -90,6 +95,7 @@ else if (main_data=="Emissions" && isUpdate == false){
     gen_geo_map();
 });
 }
+
 
 d3.csv("data/mergedAverages.csv").then((data) =>{
   parallelCoordinatesBrush(data);
@@ -178,7 +184,12 @@ function change_y_text(){
 
 function gen_geo_map(){
   if (isUpdate){
-    var year_data = dataset.filter(c => c.Year === year) ;
+    
+    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+    
+  
+    console.log(document.getElementById('sliderTime').value )
+    console.log(year_data)
     
     let mouseOver = function(d) {
       d3.selectAll(".country")
@@ -219,7 +230,6 @@ function gen_geo_map(){
         .attr("fill", function (d){
             var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
-              console.log(country);
                 var colorVal = colorScale(country.Value);
                 return colorScheme(colorVal);
             }    
@@ -254,7 +264,7 @@ function gen_geo_map(){
         .style("stroke", "black")
     }
 
-    var year_data = dataset.filter(c => c.Year === year) ;
+    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
     var projection = d3
         .geoMercator()
         .scale((height))
@@ -399,6 +409,7 @@ function parallelCoordinatesBrush(data){
 }
 
 function update(data) {
+  
   main_data = data
   isUpdate = true
   
@@ -407,6 +418,11 @@ function update(data) {
     lineColor = airQColor;
     colorScheme = d3.interpolateBuPu;
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
+      min_scroll = d3.min(data, (d) => d.Year)
+      max_scroll = d3.max(data, (d) => d.Year)
+      document.getElementById('sliderTime').min = min_scroll;
+      document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -422,6 +438,11 @@ function update(data) {
      lineColor = fireColor;
      colorScheme = d3.interpolateReds;
      Promise.all([topology, fire_data]).then(function ([map, data]){
+      min_scroll = d3.min(data, (d) => d.Year)
+      max_scroll = d3.max(data, (d) => d.Year)
+      document.getElementById('sliderTime').min = min_scroll;
+      document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -438,6 +459,11 @@ function update(data) {
     lineColor = emiColor;
     colorScheme = d3.interpolatePuBuGn;
     Promise.all([topology, emissions_data]).then(function ([map, data]){
+      min_scroll = d3.min(data, (d) => d.Year)
+      max_scroll = d3.max(data, (d) => d.Year)
+      document.getElementById('sliderTime').min = min_scroll;
+      document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -454,6 +480,11 @@ function update(data) {
     lineColor = tempColor;
     colorScheme = d3.interpolateOranges;
     Promise.all([topology, temperature_data]).then(function ([map, data]){
+      min_scroll = d3.min(data, (d) => d.Year)
+      max_scroll = d3.max(data, (d) => d.Year)
+      document.getElementById('sliderTime').min = min_scroll;
+      document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -465,6 +496,7 @@ function update(data) {
   isUpdate = false
   }
 }
+
 
 function line_chart(data) {
 
