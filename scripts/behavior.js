@@ -27,7 +27,7 @@ emissions_text = "Emissions (%)"
 temperature_text = "Annual Average Temperature (\u00B0C)"
 fires_text = "Area burned (ha)"
 
-main_data = temperature
+main_data = air_quality
 var year
 
 isUpdate = false
@@ -316,7 +316,7 @@ function parallelCoordinatesBrush(data){
 
 
   keys = data.columns.slice(1);
-  height = keys.length * 60 ;
+  height = keys.length * 77 ;
   //x = new Map(Array.from(keys, key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [margin.left, width - margin.right])]))
   var x = {}
   for (i in keys) {
@@ -324,12 +324,12 @@ function parallelCoordinatesBrush(data){
     if(n =='Fires'){
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, 0.4*width]);
+      .range([margin.left, 0.45*width]);
     }
     else{
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, 0.4*width]);
+      .range([margin.left, 0.45*width]);
     }
   }
 
@@ -345,7 +345,7 @@ function parallelCoordinatesBrush(data){
     
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
-                .style("width", 0.4*width)
+                .style("width", 0.5*width)
                 .style("height", height+20)
                 .style("padding-left", 35);
 
@@ -578,7 +578,7 @@ function line_chart(data) {
       .range([ 0, 0.8*width ]);
 
     svg_line_chart.append("g")
-      .attr("transform", `translate(0, ${height+margin.bottom-86})`)
+      .attr("transform", `translate(0, ${height+margin.bottom-100})`)
       .attr("class","myXaxis")
       .call(d3.axisBottom(x_line).ticks(21))
       .call(g => g.select('.domain')
@@ -642,9 +642,12 @@ function line_chart(data) {
 
 function createCheckList(data){
   data.then(function (data){
+    console.log(data)
     d3.select("div#checkList")
+      .selectAll("div")
       .data(data)
-      .join("country")
+      .join("div")
+        .attr("class","countryList")
         .append('label')
             .attr('for',function(d,i){ return 'a'+i; })
             .text(function(d) { return d.Country; })
@@ -653,6 +656,8 @@ function createCheckList(data){
             .attr("type", "checkbox")
             .attr("id", function(d) { return d.Country ; })
             .attr("onClick", "change(this)");
+
+
   });
 }
 
