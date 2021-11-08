@@ -578,7 +578,7 @@ function line_chart(data) {
       .range([ 0, 0.8*width ]);
 
     svg_line_chart.append("g")
-      .attr("transform", `translate(0, ${height+margin.bottom-100})`)
+      .attr("transform", `translate(0, ${height+margin.bottom*(-2.2)})`)
       .attr("class","myXaxis")
       .call(d3.axisBottom(x_line).ticks(21))
       .call(g => g.select('.domain')
