@@ -163,6 +163,6 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 .countryList{
-  font-size: 18px;
+  font-size: 15px;
   align-self: middle;
 }
