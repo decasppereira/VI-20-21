@@ -105,6 +105,7 @@ draw = false;
 
 function updateYear(y){
   isUpdate = true;
+
   if (main_data=="Air Quality"){
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
       year = y;
@@ -159,6 +160,10 @@ function updateYear(y){
     });
   isUpdate = false
   }
+}
+
+function updateTextInput(val) {
+  document.getElementById('yearText').value=val; 
 }
 
 function change_y_text(){
