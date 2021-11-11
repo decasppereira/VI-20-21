@@ -51,6 +51,13 @@ body{
   width: 65%;
 }
 
+#yearText{
+  position: relative;
+  width: 4%;
+  top: 24.5vw;
+  left: 30.2%;
+} 
+
 .label{
   position:relative;
 }
