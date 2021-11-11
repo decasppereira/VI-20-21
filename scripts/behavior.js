@@ -19,6 +19,7 @@ dark_grey = "#696969"
 var colorScheme = d3.interpolateBuPu;
 var colorScale;
 
+      
 var min_scroll,max_scroll
 
 
@@ -105,7 +106,6 @@ draw = false;
 
 function updateYear(y){
   isUpdate = true;
-
   if (main_data=="Air Quality"){
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
       year = y;
@@ -166,6 +166,26 @@ function updateTextInput(val) {
   document.getElementById('yearText').value=val; 
 }
 
+function changeButtonColor(){
+  if(main_data == "Air Quality"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#airButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Fire"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#fireButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Emissions"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#emiButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Temperature"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#tempButton").style("background-color", "#a2aef0")
+  }
+}
+
+
 function change_y_text(){
   if (main_data == air_quality){
     y_text = air_quality_text
@@ -186,31 +206,59 @@ function change_y_text(){
 }
 
 function gen_geo_map(){
-  let mouseOver = function(d) {
-    d3.selectAll(".country")
-    .style("opacity", .2)
+  if (isUpdate){
+    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+        
+    let mouseOver = function(event,d) {
+      console.log(event.pageY)
+      d3.selectAll(".country")
+      .style("opacity", .2)
 
-    d3.select(this)
-      .style("opacity", 1)
-      .style("stroke", "black")
-  }
+      var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
 
-  let mouseLeave = function(d) {
-    d3.selectAll(".country")
-      .style("opacity", 1)
-    d3.select(this)
-      .style("stroke", "black")
-  }
+      var country = year_data.find(c => c.Country == d.properties.name);
+      
+      if (country!=null ){
+        d3.select(".tooltip").style("opacity", 1);
+        d3.select(".tooltip").
+          html(
+            "Country: " +
+            country.Country +
+              "<br>" +
+              "Value: " +
+              parseFloat(country.Value).toFixed(2)
+          )          
+          .style("left", event.pageX+30 + "px")
+          .style("top", event.pageY-50 + "px");        
+      }
 
-  var projection = d3
+
+      if (!d3.select(this).classed("selected")){
+        d3.select(this).style("opacity", 1).style("stroke", "black")
+    
+      }
+      
+    }
+  
+    let mouseLeave = function(event,d) {
+      d3.selectAll(".country")        .attr("id", function(d, i){
+        return d.properties.name;
+    })
+        .style("opacity", 1)
+      d3.select(this)
+        .style("stroke", "black")
+      d3.select(".tooltip").style("opacity", 0)
+      .style("left", 0 + "px")
+      .style("top", 0 + "px");
+    }
+  
+    var projection = d3
         .geoMercator()
         .scale((height))
         .rotate([0,0])
         .center([20, 32])
         .translate([width/5, height]);
-
-  if (isUpdate){
-    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+  
     var path = d3.geoPath().projection(projection);
         d3.select("#map")
         .attr("width", width/2)
@@ -239,9 +287,73 @@ function gen_geo_map(){
         .text( function (d){
             return d.properties.name;
         })
-  }else {
-    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;  
+
+
+  }
+
+  else {
+    var tooltip = d3
+    .select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position","absolute")
+    .style("opacity", 0);
+
+    let mouseOver = function(event,d) {
+      console.log(event.pageY)
+      d3.selectAll(".country")
+      .style("opacity", .2)
+
+      var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+
+      var country = year_data.find(c => c.Country == d.properties.name);
+      
+      if (country!=null ){
+        d3.select(".tooltip").style("opacity", 1);
+        d3.select(".tooltip").
+          html(
+            "Country: " +
+            country.Country +
+              "<br>" +
+              "Value: " +
+              parseFloat(country.Value).toFixed(2)
+          )          
+          .style("left", event.pageX+30 + "px")
+          .style("top", event.pageY-50 + "px");        
+      }
+      console.log(country)
+
+
+      if (!d3.select(this).classed("selected")){
+        d3.select(this).style("opacity", 1).style("stroke", "black")
+    
+      }
+      
+    }
+  
+    let mouseLeave = function(event,d) {
+      d3.selectAll(".country")        .attr("id", function(d, i){
+        return d.properties.name;
+    })
+        .style("opacity", 1)
+      d3.select(this)
+        .style("stroke", "black")
+      d3.select(".tooltip").style("opacity", 0)
+      .style("left", 0 + "px")
+      .style("top", 0 + "px");
+    }
+
+    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+    var projection = d3
+        .geoMercator()
+        .scale((height))
+        .rotate([0,0])
+        .center([20, 32])
+        .translate([width/5, height]);
+  
     var path = d3.geoPath().projection(projection);
+  
+  
     d3.select("#map")
         .append("svg")
         .attr("width", width/2)
@@ -251,10 +363,10 @@ function gen_geo_map(){
         .data(topojson.feature(topology, topology.objects.europe).features)
         .join("path")
         .attr("class", "country")
-        .attr("d", path)
         .attr("id", function(d, i){
-            return d.properties.name;
+          return d.properties.name;
         })
+        .attr("d", path)
         .style("stroke", "black")
         .attr("fill", function (d){
           var country = year_data.find(c => c.Country == d.properties.name);  
@@ -271,6 +383,7 @@ function gen_geo_map(){
         .text( function (d){
             return d.properties.name;
         })
+        console.log(d3.select("#map").selectAll("path"))
   }
 }
 
@@ -375,30 +488,12 @@ function parallelCoordinatesBrush(data){
   }
 }
 
-function changeButtonColor(){
-  if(main_data == "Air Quality"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#airButton").style("background-color", "#a2aef0")
-  }
-  else if (main_data == "Fire"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#fireButton").style("background-color", "#a2aef0")
-  }
-  else if (main_data == "Emissions"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#emiButton").style("background-color", "#a2aef0")
-  }
-  else if (main_data == "Temperature"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#tempButton").style("background-color", "#a2aef0")
-  }
-}
-
 function update(data) {
   
   main_data = data
   isUpdate = true
-  changeButtonColor();
+  changeButtonColor()
+  
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
     lineColor = airQColor;
@@ -409,6 +504,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -431,6 +527,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -454,6 +551,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -477,6 +575,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -631,9 +730,11 @@ function line_chart(data) {
       .data(sumstat)
       .join("path")
         .attr("class","line")
+        .attr("id",function(d){return d.country})
         .attr("fill", "none")
         .attr("stroke", lineColor)
         .attr("stroke-width", 1.5)
+
         .attr("d", function(d){
           return d3.line()
             .x(function(d) { return x_line(d["Year"]); })
