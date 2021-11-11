@@ -189,9 +189,6 @@ function gen_geo_map(){
   if (isUpdate){
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
     
-    console.log(document.getElementById('sliderTime').value )
-    console.log(year_data)
-    
     let mouseOver = function(d) {
       d3.selectAll(".country")
       .style("opacity", .2)
@@ -421,9 +418,11 @@ function update(data) {
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
       min_scroll = d3.min(data, (d) => d.Year)
       max_scroll = d3.max(data, (d) => d.Year)
+      year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+      updateTextInput(year);
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -441,9 +440,11 @@ function update(data) {
      Promise.all([topology, fire_data]).then(function ([map, data]){
       min_scroll = d3.min(data, (d) => d.Year)
       max_scroll = d3.max(data, (d) => d.Year)
+      year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+      updateTextInput(year);
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -462,9 +463,11 @@ function update(data) {
     Promise.all([topology, emissions_data]).then(function ([map, data]){
       min_scroll = d3.min(data, (d) => d.Year)
       max_scroll = d3.max(data, (d) => d.Year)
+      year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+      updateTextInput(year);
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -483,9 +486,11 @@ function update(data) {
     Promise.all([topology, temperature_data]).then(function ([map, data]){
       min_scroll = d3.min(data, (d) => d.Year)
       max_scroll = d3.max(data, (d) => d.Year)
+      year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+      updateTextInput(year);
       topology = map;
       dataset = data;
       isUpdate = true;
@@ -642,7 +647,6 @@ function line_chart(data) {
 
 function createCheckList(data){
   data.then(function (data){
-    console.log(data)
     d3.select("div#checkList")
       .selectAll("div")
       .data(data)
