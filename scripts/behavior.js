@@ -186,35 +186,31 @@ function change_y_text(){
 }
 
 function gen_geo_map(){
-  if (isUpdate){
-    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
-    
-    console.log(document.getElementById('sliderTime').value )
-    console.log(year_data)
-    
-    let mouseOver = function(d) {
-      d3.selectAll(".country")
-      .style("opacity", .2)
+  let mouseOver = function(d) {
+    d3.selectAll(".country")
+    .style("opacity", .2)
 
-      d3.select(this)
-        .style("opacity", 1)
-        .style("stroke", "black")
-    }
-  
-    let mouseLeave = function(d) {
-      d3.selectAll(".country")
-        .style("opacity", .8)
-      d3.select(this)
-        .style("stroke", "black")
-    }
-  
-    var projection = d3
+    d3.select(this)
+      .style("opacity", 1)
+      .style("stroke", "black")
+  }
+
+  let mouseLeave = function(d) {
+    d3.selectAll(".country")
+      .style("opacity", 1)
+    d3.select(this)
+      .style("stroke", "black")
+  }
+
+  var projection = d3
         .geoMercator()
         .scale((height))
         .rotate([0,0])
         .center([20, 32])
         .translate([width/5, height]);
-  
+
+  if (isUpdate){
+    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
     var path = d3.geoPath().projection(projection);
         d3.select("#map")
         .attr("width", width/2)
@@ -243,39 +239,9 @@ function gen_geo_map(){
         .text( function (d){
             return d.properties.name;
         })
-
-
-  }
-
-  else {
-
-    let mouseOver = function(d) {
-      d3.selectAll(".country")
-      .style("opacity", .2)
-
-      d3.select(this)
-        .style("opacity", 1)
-        .style("stroke", "black")
-    }
-  
-    let mouseLeave = function(d) {
-      d3.selectAll(".country")
-        .style("opacity", 1)
-      d3.select(this)
-        .style("stroke", "black")
-    }
-
-    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
-    var projection = d3
-        .geoMercator()
-        .scale((height))
-        .rotate([0,0])
-        .center([20, 32])
-        .translate([width/5, height]);
-  
+  }else {
+    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;  
     var path = d3.geoPath().projection(projection);
-  
-  
     d3.select("#map")
         .append("svg")
         .attr("width", width/2)
