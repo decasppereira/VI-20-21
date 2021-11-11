@@ -491,6 +491,19 @@ function update(data) {
   }
 }
 
+function toggle(source) {
+  checkboxes = d3.select("div#checkList").selectAll("#check");
+  console.log(checkboxes);
+  for(var checkbox in checkboxes._groups[0]){
+    //console.log(checkbox);
+    checkbox.checked = source.checked;
+  }
+}
+
+function checkClick(source){
+
+}
+
 function line_chart(data) {
 
   var y_text = change_y_text()
@@ -639,17 +652,16 @@ function createCheckList(data){
       .selectAll("div")
       .data(data)
       .join("div")
-        .attr("class","countryList")
+        //.attr("class","countryList")
         .append('label')
             .attr('for',function(d,i){ return 'a'+i; })
             .text(function(d) { return d.Country; })
         .append("input")
-            .attr("checked", true)
+            //.attr("checked", true)
             .attr("type", "checkbox")
+            .attr("class", "check")
             .attr("id", function(d) { return d.Country ; })
-            .attr("onClick", "change(this)");
-
-
+            .attr("onClick", "checkClick(this)");
   });
 }
 
