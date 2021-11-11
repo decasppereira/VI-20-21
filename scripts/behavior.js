@@ -406,11 +406,30 @@ function parallelCoordinatesBrush(data){
   }
 }
 
+function changeButtonColor(){
+  if(main_data == "Air Quality"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#airButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Fire"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#fireButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Emissions"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#emiButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Temperature"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#tempButton").style("background-color", "#a2aef0")
+  }
+}
+
 function update(data) {
   
   main_data = data
   isUpdate = true
-  
+  changeButtonColor();
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
     lineColor = airQColor;
