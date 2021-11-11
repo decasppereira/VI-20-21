@@ -24,8 +24,8 @@
 <div style="margin-left: 35%;">
     <button  class="buttons"  id ="airButton" onclick="update(air_quality)">Air Quality</button>
     <button  class="buttons" id= "emiButton" onclick="update(emissions)">Emissions</button>
-    <button  class="buttons"  onclick="update(fire)">Fires</button>
-    <button  class="buttons"  onclick="update(temperature)">Temperature</button>
+    <button  class="buttons" id= "fireButton" onclick="update(fire)">Fires</button>
+    <button  class="buttons" id= "tempButton" onclick="update(temperature)">Temperature</button>
 </div>
 
 <body>
@@ -34,14 +34,12 @@
             <div class="top" id="parallelCoordinates" style="float: left; width:50%; height:50%" > </div>
             <div class="top" id="map" style= "float: right; width:50%; position:relative; " >
                 <input type="range" id ="sliderTime" value="2005" min="1990" max="2020" 
-                        oninput= "num.value = this.value;"/>
-                <output id = "num">2005</output>
-                
-                
-     
+                        oninput= "updateYear(this.value);" onchange="updateTextInput(this.value)"/>
+                <input type = "text" id = "yearText" value="2005" readonly>
+
             </div>
         </div>
-        <div  id="line_chart" style = "width: 80%;">  </div>
+        <div  id="line_chart" style = "width: 80%;" ></div>
         <div id="checkList"> </div>
    </div>
 </body>
