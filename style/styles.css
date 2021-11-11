@@ -76,12 +76,12 @@ body{
   border: 1px solid rgba(27, 31, 35, 0.15);
   font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 14px;
-  padding-left:2%;
+  padding-left: 2%;
   border-radius: 6px;
-  position: relative;
-  width: 7%;
-  top: 20em;
-  left: 61%;
+  position: absolute;
+  width: 5%;
+  left: 62%;
+  top: 95%;
 } 
 
 .label{
