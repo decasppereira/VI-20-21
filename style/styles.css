@@ -37,23 +37,12 @@ body{
   transition-duration: 0.1s;
 }
 
-
-.buttons:active {
-  background-color: #ab7dff;
-  transition: 1s;
-}
-
 .buttons:focus {
-  outline: 1px transparent;
   background-color: #a2aef0;
 }
 
-.buttons:before {
-  display: none;
-}
-
-.buttons:-webkit-details-marker {
-  display: none;
+.buttons:target{
+  background-color: #a2aef0;
 }
 
 #sliderTime{
