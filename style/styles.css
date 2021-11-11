@@ -1,6 +1,6 @@
 body{
     font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    font-size: 14px;
+    font-size: 1vw;
     font-weight: 500;
     background: #41454e;
 }
@@ -170,6 +170,6 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 .countryList{
-  font-size: 15px;
+  font-size: 1.15vw;
   align-self: middle;
 }
