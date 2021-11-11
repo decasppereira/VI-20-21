@@ -38,8 +38,6 @@ var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
 var selectedButtonColor ="#ba8fff";
 
 const margin = {top: 10, right: 50, bottom: 30, left: 50},
-//width = 1300 - margin.left - margin.right,
-//height = 350  - margin.bottom;
 width = window.innerWidth- margin.left - margin.right;
 height = window.innerHeight/2 - margin.bottom;
 createCheckList(merged);
@@ -184,8 +182,10 @@ function change_y_text(){
 
 function gen_geo_map(){
   if (isUpdate){
-    
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+    
+    console.log(document.getElementById('sliderTime').value )
+    console.log(year_data)
     
     let mouseOver = function(d) {
       d3.selectAll(".country")
@@ -304,7 +304,7 @@ function gen_geo_map(){
 }
 
 function parallelCoordinatesBrush(data){
-  var height;
+  //var height;
   var keys;
   var margin = ({top: 50, right: 10, bottom: 30, left: 10});
   //var width = 500 - margin.left - margin.right;
@@ -312,7 +312,7 @@ function parallelCoordinatesBrush(data){
 
 
   keys = data.columns.slice(1);
-  height = keys.length * 77 ;
+  //height = keys.length * 77 ;
   //x = new Map(Array.from(keys, key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [margin.left, width - margin.right])]))
   var x = {}
   for (i in keys) {
@@ -493,7 +493,6 @@ function update(data) {
   }
 }
 
-
 function line_chart(data) {
 
   var y_text = change_y_text()
@@ -574,7 +573,7 @@ function line_chart(data) {
       .range([ 0, 0.8*width ]);
 
     svg_line_chart.append("g")
-      .attr("transform", `translate(0, ${height+margin.bottom*(-2.2)})`)
+      .attr("transform", `translate(0, ${height+margin.bottom*(-1.8)})`)
       .attr("class","myXaxis")
       .call(d3.axisBottom(x_line).ticks(21))
       .call(g => g.select('.domain')
@@ -586,7 +585,7 @@ function line_chart(data) {
 
     svg_line_chart.append("text")
       .attr("transform",
-      "translate(" + (0.8/2*width) + " ," + 
+      "translate(" + (0.4*width) + " ," + 
                     (height-30 + margin.top) + ")")
       .style('fill', 'white')
       .style("text-anchor", "middle")
