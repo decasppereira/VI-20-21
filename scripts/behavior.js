@@ -187,10 +187,6 @@ function gen_geo_map(){
     
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
     
-  
-    console.log(document.getElementById('sliderTime').value )
-    console.log(year_data)
-    
     let mouseOver = function(d) {
       d3.selectAll(".country")
       .style("opacity", .2)
