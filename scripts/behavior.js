@@ -19,6 +19,7 @@ dark_grey = "#696969"
 var colorScheme = d3.interpolateBuPu;
 var colorScale;
 
+      
 var min_scroll,max_scroll
 
 
@@ -183,24 +184,48 @@ function change_y_text(){
 function gen_geo_map(){
   if (isUpdate){
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
-    
-    console.log(document.getElementById('sliderTime').value )
-    console.log(year_data)
-    
-    let mouseOver = function(d) {
+        
+    let mouseOver = function(event,d) {
+      console.log(event.pageY)
       d3.selectAll(".country")
       .style("opacity", .2)
 
-      d3.select(this)
-        .style("opacity", 1)
-        .style("stroke", "black")
+      var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+
+      var country = year_data.find(c => c.Country == d.properties.name);
+      
+      if (country!=null ){
+        d3.select(".tooltip").style("opacity", 1);
+        d3.select(".tooltip").
+          html(
+            "Country: " +
+            country.Country +
+              "<br>" +
+              "Value: " +
+              parseFloat(country.Value).toFixed(2)
+          )          
+          .style("left", event.pageX+30 + "px")
+          .style("top", event.pageY-50 + "px");        
+      }
+
+
+      if (!d3.select(this).classed("selected")){
+        d3.select(this).style("opacity", 1).style("stroke", "black")
+    
+      }
+      
     }
   
-    let mouseLeave = function(d) {
-      d3.selectAll(".country")
-        .style("opacity", .8)
+    let mouseLeave = function(event,d) {
+      d3.selectAll(".country")        .attr("id", function(d, i){
+        return d.properties.name;
+    })
+        .style("opacity", 1)
       d3.select(this)
         .style("stroke", "black")
+      d3.select(".tooltip").style("opacity", 0)
+      .style("left", 0 + "px")
+      .style("top", 0 + "px");
     }
   
     var projection = d3
@@ -243,21 +268,55 @@ function gen_geo_map(){
   }
 
   else {
+    var tooltip = d3
+    .select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position","absolute")
+    .style("opacity", 0);
 
-    let mouseOver = function(d) {
+    let mouseOver = function(event,d) {
+      console.log(event.pageY)
       d3.selectAll(".country")
       .style("opacity", .2)
 
-      d3.select(this)
-        .style("opacity", 1)
-        .style("stroke", "black")
+      var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+
+      var country = year_data.find(c => c.Country == d.properties.name);
+      
+      if (country!=null ){
+        d3.select(".tooltip").style("opacity", 1);
+        d3.select(".tooltip").
+          html(
+            "Country: " +
+            country.Country +
+              "<br>" +
+              "Value: " +
+              parseFloat(country.Value).toFixed(2)
+          )          
+          .style("left", event.pageX+30 + "px")
+          .style("top", event.pageY-50 + "px");        
+      }
+      console.log(country)
+
+
+      if (!d3.select(this).classed("selected")){
+        d3.select(this).style("opacity", 1).style("stroke", "black")
+    
+      }
+      
     }
   
-    let mouseLeave = function(d) {
-      d3.selectAll(".country")
+    let mouseLeave = function(event,d) {
+      d3.selectAll(".country")        .attr("id", function(d, i){
+        return d.properties.name;
+    })
         .style("opacity", 1)
       d3.select(this)
         .style("stroke", "black")
+      d3.select(".tooltip").style("opacity", 0)
+      .style("left", 0 + "px")
+      .style("top", 0 + "px");
     }
 
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
@@ -280,10 +339,10 @@ function gen_geo_map(){
         .data(topojson.feature(topology, topology.objects.europe).features)
         .join("path")
         .attr("class", "country")
-        .attr("d", path)
         .attr("id", function(d, i){
-            return d.properties.name;
+          return d.properties.name;
         })
+        .attr("d", path)
         .style("stroke", "black")
         .attr("fill", function (d){
           var country = year_data.find(c => c.Country == d.properties.name);  
@@ -300,6 +359,7 @@ function gen_geo_map(){
         .text( function (d){
             return d.properties.name;
         })
+        console.log(d3.select("#map").selectAll("path"))
   }
 }
 
@@ -620,9 +680,11 @@ function line_chart(data) {
       .data(sumstat)
       .join("path")
         .attr("class","line")
+        .attr("id",function(d){return d.country})
         .attr("fill", "none")
         .attr("stroke", lineColor)
         .attr("stroke-width", 1.5)
+
         .attr("d", function(d){
           return d3.line()
             .x(function(d) { return x_line(d["Year"]); })
@@ -637,7 +699,6 @@ function line_chart(data) {
 
 function createCheckList(data){
   data.then(function (data){
-    console.log(data)
     d3.select("div#checkList")
       .selectAll("div")
       .data(data)
