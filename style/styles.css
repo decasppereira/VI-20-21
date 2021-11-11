@@ -157,8 +157,8 @@ input[type=range]:focus::-ms-fill-upper {
   width: 13%;
   height: 93%;
   background: #ece5d6;
-  padding: 10px;
-  border-radius: 25px;
+  padding: 1em;
+  border-radius: 2em;
   box-sizing: border-box;
 }
 
