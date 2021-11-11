@@ -106,7 +106,6 @@ draw = false;
 
 function updateYear(y){
   isUpdate = true;
-
   if (main_data=="Air Quality"){
     Promise.all([topology, air_quality_data]).then(function ([map, data]){
       year = y;
@@ -166,6 +165,26 @@ function updateYear(y){
 function updateTextInput(val) {
   document.getElementById('yearText').value=val; 
 }
+
+function changeButtonColor(){
+  if(main_data == "Air Quality"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#airButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Fire"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#fireButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Emissions"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#emiButton").style("background-color", "#a2aef0")
+  }
+  else if (main_data == "Temperature"){
+    d3.selectAll(".buttons").style("background-color", "#ece5d6")
+    d3.select("#tempButton").style("background-color", "#a2aef0")
+  }
+}
+
 
 function change_y_text(){
   if (main_data == air_quality){
@@ -239,9 +258,7 @@ function gen_geo_map(){
         .rotate([0,0])
         .center([20, 32])
         .translate([width/5, height]);
-
-  if (isUpdate){
-    var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
+  
     var path = d3.geoPath().projection(projection);
         d3.select("#map")
         .attr("width", width/2)
@@ -335,6 +352,8 @@ function gen_geo_map(){
         .translate([width/5, height]);
   
     var path = d3.geoPath().projection(projection);
+  
+  
     d3.select("#map")
         .append("svg")
         .attr("width", width/2)
@@ -469,30 +488,12 @@ function parallelCoordinatesBrush(data){
   }
 }
 
-function changeButtonColor(){
-  if(main_data == "Air Quality"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#airButton").style("background-color", "#a2aef0")
-  }
-  else if (main_data == "Fire"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#fireButton").style("background-color", "#a2aef0")
-  }
-  else if (main_data == "Emissions"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#emiButton").style("background-color", "#a2aef0")
-  }
-  else if (main_data == "Temperature"){
-    d3.selectAll(".buttons").style("background-color", "#ece5d6")
-    d3.select("#tempButton").style("background-color", "#a2aef0")
-  }
-}
-
 function update(data) {
   
   main_data = data
   isUpdate = true
-  changeButtonColor();
+  changeButtonColor()
+  
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
     lineColor = airQColor;
@@ -503,6 +504,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -525,6 +527,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -548,6 +551,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
@@ -571,6 +575,7 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
+      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
       topology = map;
