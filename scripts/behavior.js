@@ -243,6 +243,8 @@ function gen_geo_map(){
       var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
 
       var country = year_data.find(c => c.Country == d.properties.name);
+
+      text = change_y_text()
       
       if (country!=null ){
         d3.select(".tooltip").style("opacity", 1);
@@ -251,7 +253,7 @@ function gen_geo_map(){
             "Country: " +
             country.Country +
               "<br>" +
-              "Value: " +
+              text + ": " +
               parseFloat(country.Value).toFixed(2)
           )          
           .style("left", event.pageX+30 + "px")
@@ -318,6 +320,7 @@ function gen_geo_map(){
   }
 
   else {
+    text = change_y_text()
     var tooltip = d3
     .select("body")
     .append("div")
@@ -340,7 +343,7 @@ function gen_geo_map(){
             "Country: " +
             country.Country +
               "<br>" +
-              "Value: " +
+              text + ": " +
               parseFloat(country.Value).toFixed(2)
           )          
           .style("left", event.pageX+30 + "px")
@@ -630,8 +633,10 @@ function deSelect(){
 
 function line_chart(dataset) {
 
-  var y_text = change_y_text()
+
   if (isUpdate){
+    y_text = change_y_text()
+
     dataset.then( function(dataset) {
       const data = dataset;
       sumstat = d3.group(data, d => d.Country);
@@ -651,6 +656,10 @@ function line_chart(dataset) {
         .call(g => g.selectAll('.tick')
         .attr("color", "white")
       );
+
+      d3.select(".ylabel").text(y_text).transition()
+
+
       svg_line_chart
       .selectAll(".line")
       .data(sumstat)
@@ -716,6 +725,8 @@ function line_chart(dataset) {
     //Read the data
   dataset.then( function(dataset) {
     const data = dataset;
+    y_text = change_y_text()
+
     const sumstat = d3.group(data, d => d.Country);
 
     svg_line_chart = d3.select("div#line_chart")
@@ -765,13 +776,14 @@ function line_chart(dataset) {
       );
 
       svg_line_chart.append("text")
+      .attr("class","ylabel")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left -17)
+      .attr("y", 0 - margin.left -23)
       .attr("x",0 - (0.8*height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .style('fill', 'white')
-      .text("Value"); 
+      .text(y_text); 
 
     // Initialize line with group a
     svg_line_chart.selectAll(".line")
