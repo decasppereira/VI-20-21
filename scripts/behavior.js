@@ -139,9 +139,8 @@ function updateYear(y){
       topology = map;
       dataset = data;
       isUpdate = true;
-      colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
-              .range([0, 1]);
+      colorScale = d3.scaleDiverging()
+              .domain([250, 100, 50]);
       gen_geo_map();
     });
   isUpdate = false
@@ -539,22 +538,23 @@ function update(data) {
   else if (main_data=="Emissions"){
     line_chart(emissions_data);
     lineColor = emiColor;
-    colorScheme = d3.interpolatePuBuGn;
+    colorScheme = d3.interpolatePiYG;
     Promise.all([topology, emissions_data]).then(function ([map, data]){
       min_scroll = d3.min(data, (d) => d.Year)
-      max_scroll = d3.max(data, (d) => d.Year)
+      max_scroll = 2018
+
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
       updateTextInput(year);
+
       topology = map;
       dataset = data;
       isUpdate = true;
-      colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
-              .range([0, 1]);
+      colorScale = d3.scaleDiverging()
+              .domain([250, 100, 50]);
       gen_geo_map();
   });
   isUpdate = false
@@ -611,11 +611,11 @@ function line_chart(data) {
     data.then( function(data) {
       sumstat = d3.group(data, d => d.Country);
 
-      svg_line_chart = d3.select("div#line_chart")
+      svg_line_chart = d3.select("div#line_chart");
       
       x_line.domain([d3.min(data, function(d) { return d.Year }), d3.max(data, function(d) { return d.Year }) ]);
       svg_line_chart.selectAll(".myXaxis")
-      .call(d3.axisBottom(x_line))
+      .call(d3.axisBottom(x_line).ticks(20))
       .call(g => g.selectAll('.tick')
         .attr("color", "white")
       );
@@ -680,12 +680,12 @@ function line_chart(data) {
     x_line = d3.scaleLinear()
       //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
       .domain(d3.extent(data, function(d) { return d.Year;}))
-      .range([ 0, 0.8*width ]);
+      .range([ 0, 0.83*width ]);
 
     svg_line_chart.append("g")
-      .attr("transform", `translate(0, ${height+margin.bottom*(-1.8)})`)
+      .attr("transform", `translate(0, ${height+margin.bottom*(-2.9)})`)
       .attr("class","myXaxis")
-      .call(d3.axisBottom(x_line).ticks(21))
+      .call(d3.axisBottom(x_line).ticks(20))
       .call(g => g.select('.domain')
         .attr("stroke","white")
         .attr("stroke-width","1.5"))
@@ -696,7 +696,7 @@ function line_chart(data) {
     svg_line_chart.append("text")
       .attr("transform",
       "translate(" + (0.4*width) + " ," + 
-                    (height-30 + margin.top) + ")")
+                    (height-50 + margin.top) + ")")
       .style('fill', 'white')
       .style("text-anchor", "middle")
       .text("Year")
