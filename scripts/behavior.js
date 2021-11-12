@@ -388,16 +388,11 @@ function gen_geo_map(){
 }
 
 function parallelCoordinatesBrush(data){
-  //var height;
   var keys;
   var margin = ({top: 50, right: 10, bottom: 30, left: 10});
-  //var width = 500 - margin.left - margin.right;
-  var brushHeight = 30;
-
+  var brushHeight = 25;
 
   keys = data.columns.slice(1);
-  //height = keys.length * 77 ;
-  //x = new Map(Array.from(keys, key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [margin.left, width - margin.right])]))
   var x = {}
   for (i in keys) {
     n = keys[i]
@@ -426,7 +421,7 @@ function parallelCoordinatesBrush(data){
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
                 .style("width", 0.5*width)
-                .style("height", height+20)
+                .style("height", height+margin.bottom)
                 .style("padding-left", 35);
 
   const brush = d3.brushX()
@@ -590,18 +585,23 @@ function update(data) {
   }
 }
 
-function toggle(source) {
-  checkboxes = d3.select("div#checkList").selectAll("#check");
-  console.log(checkboxes);
-  for(var checkbox in checkboxes._groups[0]){
-    //console.log(checkbox);
-    checkbox.checked = source.checked;
-  }
-}
+function selects(){  
+  var ele=document.getElementsByName('chk');  
+  for(var i=0; i<ele.length; i++){  
+      if(ele[i].type=='checkbox')  
+          ele[i].checked=true;  
+  }  
+} 
 
-function checkClick(source){
+function deSelect(){  
+  var ele=document.getElementsByName('chk');  
+  for(var i=0; i<ele.length; i++){  
+      if(ele[i].type=='checkbox')  
+          ele[i].checked=false;  
+        
+  }  
+}  
 
-}
 
 function line_chart(data) {
 
@@ -758,9 +758,9 @@ function createCheckList(data){
             .attr('for',function(d,i){ return 'a'+i; })
             .text(function(d) { return d.Country; })
         .append("input")
-            //.attr("checked", true)
+            .attr("checked", true)
             .attr("type", "checkbox")
-            .attr("class", "check")
+            .attr("name", "chk")
             .attr("id", function(d) { return d.Country ; })
             .attr("onClick", "checkClick(this)");
   });

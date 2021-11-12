@@ -77,11 +77,12 @@ body{
   font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 14px;
   padding-left: 2%;
+  padding-right: 1%;
   border-radius: 6px;
   position: absolute;
   width: 5%;
   left: 62%;
-  top: 95%;
+  top: 92%;
 } 
 
 .label{
@@ -181,10 +182,33 @@ input[type=text]{
   left: 85%;
   width: 13%;
   height: 93%;
-  background: #ece5d6;
+  background: #F3F4F6;
   padding: 1em;
   border-radius: 2em;
   box-sizing: border-box;
+}
+
+.selector{
+  display: inline-block;
+  background-color: #ece5d6;
+  border: 1px solid rgba(27, 31, 35, 0.15);
+  font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 14px;
+  padding-left: 2%;
+  padding-right: 1%;
+  border-radius: 6px;
+  width: 40%;
+}
+
+.selector:hover {
+  background-color: #F3F4F6;
+  text-decoration: none;
+  transition-duration: 0.1s;
+}
+
+.selector:focus {
+  background-color: #a2aef0;
+  transition-duration: 0.1s;
 }
 
 .countryList{
