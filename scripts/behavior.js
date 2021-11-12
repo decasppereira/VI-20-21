@@ -19,6 +19,36 @@ dark_grey = "#696969"
 var colorScheme = d3.interpolateBuPu;
 var colorScale;
 
+var country_names = ["Austria",
+  "Belgium",
+  "Bulgaria",
+  "Croatia",
+  "Cyprus",
+  "Czechia",
+  "Denmark",
+  "Estonia",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "Hungary",
+  "Iceland",
+  "Ireland",
+  "Italy",
+  "Lithuania",
+  "Luxembourg",
+  "Malta",
+  "Netherlands",
+  "Norway",
+  "Poland",
+  "Portugal",
+  "Romania",
+  "Slovakia",
+  "Slovenia",
+  "Spain",
+  "Turkey",
+  ]
+var selectedCountries = country_names;
       
 var min_scroll,max_scroll
 
@@ -29,8 +59,6 @@ temperature_text = "Annual Average Temperature (\u00B0C)"
 fires_text = "Area burned (ha)"
 
 main_data = air_quality
-var year
-
 isUpdate = false
 
 var svg_line_chart = 0
@@ -209,7 +237,6 @@ function gen_geo_map(){
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
         
     let mouseOver = function(event,d) {
-      console.log(event.pageY)
       d3.selectAll(".country")
       .style("opacity", .2)
 
@@ -299,7 +326,6 @@ function gen_geo_map(){
     .style("opacity", 0);
 
     let mouseOver = function(event,d) {
-      console.log(event.pageY)
       d3.selectAll(".country")
       .style("opacity", .2)
 
@@ -320,8 +346,6 @@ function gen_geo_map(){
           .style("left", event.pageX+30 + "px")
           .style("top", event.pageY-50 + "px");        
       }
-      console.log(country)
-
 
       if (!d3.select(this).classed("selected")){
         d3.select(this).style("opacity", 1).style("stroke", "black")
@@ -382,7 +406,6 @@ function gen_geo_map(){
         .text( function (d){
             return d.properties.name;
         })
-        console.log(d3.select("#map").selectAll("path"))
   }
 }
 
@@ -420,7 +443,7 @@ function parallelCoordinatesBrush(data){
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
                 .style("width", 0.5*width)
-                .style("height", height+margin.bottom)
+                .style("height", height + margin.bottom)
                 .style("padding-left", 35);
 
   const brush = d3.brushX()
@@ -487,7 +510,7 @@ function update(data) {
   main_data = data
   isUpdate = true
   changeButtonColor()
-  
+
   if (main_data=="Air Quality"){
     line_chart(air_quality_data);
     lineColor = airQColor;
@@ -590,25 +613,27 @@ function selects(){
   for(var i=0; i<ele.length; i++){  
       if(ele[i].type=='checkbox')  
           ele[i].checked=true;  
-  }  
+  }
+  selectedCountries = country_names;
+  update(main_data);
 } 
 
 function deSelect(){  
   var ele=document.getElementsByName('chk');  
   for(var i=0; i<ele.length; i++){  
       if(ele[i].type=='checkbox')  
-          ele[i].checked=false;  
-        
-  }  
+          ele[i].checked=false;      
+  }
+  selectedCountries = [];
+  update(main_data);
 }  
 
-
-function line_chart(data) {
+function line_chart(dataset) {
 
   var y_text = change_y_text()
   if (isUpdate){
-
-    data.then( function(data) {
+    dataset.then( function(dataset) {
+      const data = dataset;
       sumstat = d3.group(data, d => d.Country);
 
       svg_line_chart = d3.select("div#line_chart");
@@ -635,8 +660,6 @@ function line_chart(data) {
           .append("path")
           .attr("class","line")
           .attr("fill", "none")
-          .attr("stroke", "steelblue")
-          .attr("stroke-width", 1.5)
           .attr("d", function(d){
             return d3.line()
               .x(function(d) { return x_line(d["Year"]);  })
@@ -648,14 +671,30 @@ function line_chart(data) {
         (update) => {
           update
             .transition()
-            .duration(750)
+            .duration(400)
             .attr("d", function(d){
               return d3.line()
                 .x(function(d) { return x_line(d["Year"]); })
                 .y(function(d) { return y_line(+d["Value"]); })
                 .curve(d3.curveMonotoneX)
                 (d[1])
-            }).attr("stroke", lineColor);
+            })
+            .attr("stroke", function(d){
+              if (selectedCountries.includes(d[0])){
+                return lineColor;
+              }
+              else{
+                return "#ffffff";
+              }
+            })
+            .attr("stroke-opacity", function(d) {
+              if (selectedCountries.includes(d[0])){
+                return 1;
+              }
+              else{
+                return 0.1;
+              }
+            });
         },
         (exit) => {
           return exit.remove();
@@ -675,8 +714,8 @@ function line_chart(data) {
 
   else{
     //Read the data
-  data.then( function(data) {
-
+  dataset.then( function(dataset) {
+    const data = dataset;
     const sumstat = d3.group(data, d => d.Country);
 
     svg_line_chart = d3.select("div#line_chart")
@@ -739,9 +778,17 @@ function line_chart(data) {
       .data(sumstat)
       .join("path")
         .attr("class","line")
-        .attr("id",function(d){return d.country})
+        .attr("id",function(d){return d[0];})
         .attr("fill", "none")
         .attr("stroke", lineColor)
+        .attr("stroke-opacity", function(d) {
+          if (selectedCountries.includes(d[0])){
+            return 1;
+          }
+          else{
+            return 0.2;
+          }
+        })
         .attr("stroke-width", 1.5)
 
         .attr("d", function(d){
@@ -784,5 +831,15 @@ function createCheckList(data){
             .attr("id", function(d) { return d.Country ; })
             .attr("onClick", "checkClick(this)");
   });
+}
+
+function checkClick(country){
+  if(country.checked == true){
+    selectedCountries.push(country.id);
+  }
+  else{
+    selectedCountries = selectedCountries.filter(c => c != country.id);
+  }
+  update(main_data);
 }
 
