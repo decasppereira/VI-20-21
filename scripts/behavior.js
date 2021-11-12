@@ -659,8 +659,17 @@ function line_chart(data) {
         },
         (exit) => {
           return exit.remove();
+        });
+        if (main_data == "Emissions"){
+          d3.select("#line_chart")
+            .select("#today_line")
+            .style("visibility", "visible");
         }
-      );
+        else{
+          d3.select("#line_chart")
+            .select("#today_line")
+            .style("visibility", "hidden");
+        }
     })
   }
 
@@ -741,8 +750,19 @@ function line_chart(data) {
             .y(function(d) { return y_line(+d["Value"]); })
             .curve(d3.curveMonotoneX)
             (d[1])
-        })
-    
+        }) 
+        
+      d3.select("#line_chart")
+        .append("line")
+        .attr("id", "today_line")
+        .style("position", "absolute")
+        .style("width", "1.5px")
+        .style("height", height/2)
+        .style("top", "540px")
+        .style("bottom", "60px")
+        .style("left", "788px")
+        .style("background", "#fff")
+        .style("visibility", "hidden");
   })
   }
 }
