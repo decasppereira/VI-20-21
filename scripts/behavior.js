@@ -504,6 +504,7 @@ function parallelCoordinatesBrush(data){
       if (active) {
         d3.select(this).raise();
         selected.push(d);
+        
       }
     });
   }
@@ -719,8 +720,6 @@ function line_chart(dataset) {
       );
 
       d3.select(".ylabel").text(y_text).transition()
-
-
       
       svg_line_chart
       .selectAll(".line")
@@ -765,7 +764,7 @@ function line_chart(dataset) {
               else{
                 return 0.1;
               }
-            });
+            }).attr("id", function(d){ return d[0];});
         },
         (exit) => {
           return exit.remove();
