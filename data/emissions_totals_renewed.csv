@@ -27,7 +27,6 @@ Austria,2014,98.68
 Austria,2015,101.6
 Austria,2016,103.05
 Austria,2017,106.17
-Austria,2030,60
 Austria,2018,102.66
 Belgium,1990,100
 Belgium,1991,101.4
@@ -897,3 +896,5 @@ Slovakia,2050,0
 Slovenia,2050,0
 Spain,2050,0
 Turkey,2050,0
+Sweden,2050,0
+Sweden,2030,60

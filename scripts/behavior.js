@@ -46,6 +46,7 @@ var country_names = ["Austria",
   "Slovakia",
   "Slovenia",
   "Spain",
+  "Sweden",
   "Turkey",
   ]
 var selectedCountries = country_names;
@@ -632,6 +633,66 @@ function deSelect(){
 }  
 
 function line_chart(dataset) {
+  var color
+
+
+  function mouseOver(event,d){
+    color = d3.select(this).style("stroke");
+    var name = d3.select(this).attr("id");
+
+    console.log(color)
+    if (selectedCountries.includes(name) ){
+      svg_line_chart
+        .selectAll(".line")    
+        .style("opacity",.3)
+      // highlight this line, fade other lines
+    
+      d3.select(".tooltip").style("opacity", 1);
+      d3.select(".tooltip").
+        html(
+          name
+        )          
+        .style("left", event.pageX+10 + "px")
+        .style("top", event.pageY-20 + "px");        
+    
+    if (!d3.select(this).classed("selected")){
+      d3.select(this).style("opacity", 1).style("stroke", "black").style("stroke-width",3) 
+    }
+    }
+  }
+  function mouseLeave(event,d){
+    var name = d3.select(this).attr("id");
+
+    if (selectedCountries.includes(name) ){
+
+    svg_line_chart
+      .selectAll(".line")
+      .attr("stroke",function(d){
+        if (!selectedCountries.includes(d[0])){
+          return "#ffffff"
+        }
+        else{
+          return color
+        }
+      }) 
+      .attr("style",function(d){
+        if (!selectedCountries.includes(d[0])){
+          return "#ffffff"
+        }
+        else{
+          return color
+        }
+      }) 
+      .style("opacity",1)
+      .style("stroke-width",1.5)
+    }
+    d3.select(".tooltip").style("opacity", 0)
+    .style("left", 0 + "px")
+    .style("top", 0 + "px");
+      
+
+    // highlight this line, fade other lines
+  }
 
 
   if (isUpdate){
@@ -660,6 +721,7 @@ function line_chart(dataset) {
       d3.select(".ylabel").text(y_text).transition()
 
 
+      
       svg_line_chart
       .selectAll(".line")
       .data(sumstat)
@@ -809,7 +871,10 @@ function line_chart(dataset) {
             .y(function(d) { return y_line(+d["Value"]); })
             .curve(d3.curveMonotoneX)
             (d[1])
-        }) 
+        })
+        .on("mouseover",mouseOver)
+        .on("mouseleave",mouseLeave)
+        
         
       d3.select("#line_chart")
         .append("line")
