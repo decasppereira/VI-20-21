@@ -69,7 +69,7 @@ var selectedButtonColor ="#ba8fff";
 
 const margin = {top: 10, right: 50, bottom: 30, left: 50},
 width = window.innerWidth- margin.left - margin.right;
-height = window.innerHeight/2 - margin.bottom;
+height = window.innerHeight/2 - 1.6*margin.bottom;
 createCheckList(merged);
 
 if (main_data=="Air Quality" && isUpdate == false ){
@@ -771,7 +771,13 @@ function line_chart(dataset) {
         });
         if (main_data == "Emissions"){
           d3.select("#line_chart")
+            .select("svg")
+            .select("g")
             .select("#today_line")
+            .attr("x1", x_line(2018))
+            .attr("x2", x_line(2018))
+            .attr("y1", y_line(244))
+            .attr("y2", y_line(0))
             .style("visibility", "visible");
         }
         else{
@@ -793,12 +799,11 @@ function line_chart(dataset) {
     svg_line_chart = d3.select("div#line_chart")
     .append("svg")
       .attr("width", width )
-      .attr("height", height )
+      .attr("height", height - 20)
     .append("g")
       .attr("transform", `translate(${margin.left+25},${margin.top})`);
   
     x_line = d3.scaleLinear()
-      //.domain([new Date(1990, 0, 1),new Date(2020, 0, 1)])
       .domain(d3.extent(data, function(d) { return d.Year;}))
       .range([ 0, 0.83*width ]);
 
@@ -863,7 +868,6 @@ function line_chart(dataset) {
           }
         })
         .attr("stroke-width", 1.5)
-
         .attr("d", function(d){
           return d3.line()
             .x(function(d) { return x_line(d["Year"]); })
@@ -876,17 +880,15 @@ function line_chart(dataset) {
         
         
       d3.select("#line_chart")
+        .select("svg")
+        .select("g")
         .append("line")
         .attr("id", "today_line")
-        .style("position", "absolute")
-        .style("width", "1.5px")
-        .style("height", height/2)
-        .style("top", "540px")
-        .style("bottom", "60px")
-        .style("left", "788px")
-        .style("background", "#fff")
+        .attr("stroke", "white")
+        .attr("stroke-width", "2px")
+        .attr("stroke-opacity", 0.8)
         .style("visibility", "hidden");
-  })
+    })
   }
 }
 

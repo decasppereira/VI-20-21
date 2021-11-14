@@ -21,13 +21,18 @@
     <link rel="stylesheet" href="style/styles.css" />
 </head>
 
-<div style="margin-left: 35%;">
-    
-    <button  class="buttons"  id ="airButton" onclick="update(air_quality)">Air Quality</button>
-    <button  class="buttons" id= "emiButton" onclick="update(emissions)">Emissions</button>
-    <button  class="buttons" id= "fireButton" onclick="update(fire)">Fires</button>
-    <button  class="buttons" id= "tempButton" onclick="update(temperature)">Temperature</button>
+<div id = "header">
+    <header class = "child">
+        <p style=" margin-left: 15% ; width: 100%; font-size: large ; color: white;">Climate Change Indicators in the EU</h1>
+    </header>
+    <div class= "child" style="margin-left: 20%;">
+        <button  class="buttons"  id ="airButton" onclick="update(air_quality)">Air Quality</button>
+        <button  class="buttons" id= "emiButton" onclick="update(emissions)">Emissions</button>
+        <button  class="buttons" id= "fireButton" onclick="update(fire)">Fires</button>
+        <button  class="buttons" id= "tempButton" onclick="update(temperature)">Temperature</button>
+    </div>
 </div>
+
 
 <body>
     <div style="width: 100%; overflow: hidden;">

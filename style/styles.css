@@ -216,3 +216,10 @@ input[type=text]{
   align-self: middle;
 }
 
+.header{
+  text-align:center;
+}
+
+.child{
+  display: inline-block;
+}
