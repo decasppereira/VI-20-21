@@ -67,9 +67,9 @@ var svg_parallel_coordinates = 0
 var x_line,y_line,xAxis,yAxis,sumstat, all_lines;
 var selectedButtonColor ="#ba8fff";
 
-const margin = {top: 10, right: 50, bottom: 30, left: 50},
+const margin = {top: 0.05*window.innerHeight, right: 0.05*window.innerWidth, bottom: 0.1*window.innerHeight, left: 0.03*window.innerWidth}
 width = window.innerWidth- margin.left - margin.right;
-height = window.innerHeight/2 - 1.6*margin.bottom;
+height = (window.innerHeight - margin.bottom)/2;
 createCheckList(merged);
 
 if (main_data=="Air Quality" && isUpdate == false ){
@@ -415,26 +415,18 @@ function gen_geo_map(){
 
 function parallelCoordinatesBrush(data){
   var keys;
-  var margin = ({top: 50, right: 10, bottom: 30, left: 10});
   var brushHeight = 25;
 
   keys = data.columns.slice(1);
   var x = {}
   for (i in keys) {
     n = keys[i]
-    if(n =='Fires'){
       x[n] = d3.scaleLinear()
       .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, 0.45*width]);
-    }
-    else{
-      x[n] = d3.scaleLinear()
-      .domain( d3.extent(data, function(d) { return +d[n]; }) )
-      .range([margin.left, 0.45*width]);
-    }
+      .range([margin.left, 0.45*width]); 
   }
 
-  y = d3.scalePoint(keys, [margin.top, height]);
+  y = d3.scalePoint(keys, [3, height-0.5*margin.bottom]);
    
   var deselectedColor = "#77777a";
   label = d => d.name;
@@ -446,9 +438,8 @@ function parallelCoordinatesBrush(data){
     
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
-                .style("width", 0.5*width)
-                .style("height", height + margin.bottom)
-                .style("padding-left", 35);
+                .style("width", 0.45*width)
+                .style("height", height );
 
   const brush = d3.brushX()
       .extent([
@@ -482,10 +473,10 @@ function parallelCoordinatesBrush(data){
         .attr("stroke-width","1.5"))
       .call(g => g.append("text")
         .attr("x", margin.left)
-        .attr("y", -6)
+        .attr("y", 25)
         .attr("text-anchor", "start")
         .attr("fill", "white")
-        .style("width", width)
+        .style("font-size", "13px")
         .text(d => d))
       .call(g => g.selectAll('.tick')
         .attr("color", "white")
@@ -694,8 +685,6 @@ function line_chart(dataset) {
 
     // highlight this line, fade other lines
   }
-
-
   if (isUpdate){
     y_text = change_y_text()
 
@@ -799,16 +788,16 @@ function line_chart(dataset) {
     svg_line_chart = d3.select("div#line_chart")
     .append("svg")
       .attr("width", width )
-      .attr("height", height - 20)
+      .attr("height", height)
     .append("g")
-      .attr("transform", `translate(${margin.left+25},${margin.top})`);
+    .attr("transform", `translate(${1.5*margin.left}, ${0.3*margin.bottom})`);;
   
     x_line = d3.scaleLinear()
       .domain(d3.extent(data, function(d) { return d.Year;}))
       .range([ 0, 0.83*width ]);
 
     svg_line_chart.append("g")
-      .attr("transform", `translate(0, ${height+margin.bottom*(-2.9)})`)
+      .attr("transform", `translate(0, ${height-0.9*margin.bottom})`)
       .attr("class","myXaxis")
       .call(d3.axisBottom(x_line).ticks(20))
       .call(g => g.select('.domain')
@@ -821,7 +810,7 @@ function line_chart(dataset) {
     svg_line_chart.append("text")
       .attr("transform",
       "translate(" + (0.4*width) + " ," + 
-                    (height-50 + margin.top) + ")")
+                    (0.9*height) + ")")
       .style('fill', 'white')
       .style("text-anchor", "middle")
       .text("Year")
@@ -843,9 +832,9 @@ function line_chart(dataset) {
 
       svg_line_chart.append("text")
       .attr("class","ylabel")
+      .attr("x", -3*margin.left)
+      .attr("y", "-18%")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left -23)
-      .attr("x",0 - (0.8*height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .style('fill', 'white')
