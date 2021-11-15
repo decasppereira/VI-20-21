@@ -83,6 +83,7 @@ if (main_data=="Air Quality" && isUpdate == false ){
     topology = map;
     dataset = data;
     gen_geo_map();
+    drawScale(d3.interpolateBuPu)
 });
 }
 
@@ -233,7 +234,46 @@ function change_y_text(){
   return y_text
 }
 
+function drawScale(interpolator) {
+
+  var legend = d3.select("#colorScale")
+
+  var data = Array.from(Array(100).keys());
+
+  var cScale = d3.scaleSequential()
+      .interpolator(interpolator)
+      .domain([0,99]);
+
+  var yScale = d3.scaleLinear()
+      .domain([0,99])
+      .range([0, 150]);
+
+      legend
+      .append("svg")
+      .selectAll("rect")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("y", (d) => Math.floor(yScale(d)))
+      .attr("x", 0)
+      .attr("width", 30)
+      .attr("height", (d) => {
+          if (d == 99) {
+              return 6;
+          }
+          return Math.floor(yScale(d+1)) - Math.floor(yScale(d)) + 1;
+       })
+      .attr("fill", (d) => cScale(d));
+      legend
+        .attr("transform", `translate(${margin.left},${margin.top+50})`)
+        .attr("transform", "rotate(180)");
+;
+      
+              
+}
+
 function gen_geo_map(){
+  
   if (isUpdate){
     var year_data = dataset.filter(c => c.Year === document.getElementById('sliderTime').value) ;
         
@@ -411,6 +451,7 @@ function gen_geo_map(){
             return d.properties.name;
         })
   }
+  
 }
 
 function parallelCoordinatesBrush(data){
@@ -438,7 +479,7 @@ function parallelCoordinatesBrush(data){
     
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
-                .style("width", 0.45*width)
+                .style("width", width)
                 .style("height", height );
 
   const brush = d3.brushX()
