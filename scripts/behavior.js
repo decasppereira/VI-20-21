@@ -235,11 +235,8 @@ function change_y_text(){
 }
 
 function drawScale(interpolator) {
-
-  var legend = d3.select("#colorScale")
-
+  var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
-
   var cScale = d3.scaleSequential()
       .interpolator(interpolator)
       .domain([0,99]);
@@ -247,6 +244,11 @@ function drawScale(interpolator) {
   var yScale = d3.scaleLinear()
       .domain([0,99])
       .range([0, 150]);
+
+  if(isUpdate){
+    legend
+      .select("svg")
+      .remove();
 
       legend
       .append("svg")
@@ -267,8 +269,28 @@ function drawScale(interpolator) {
       legend
         .attr("transform", `translate(${margin.left},${margin.top+50})`)
         .attr("transform", "rotate(180)");
-;
-      
+  }
+  else{
+    legend
+      .append("svg")
+      .selectAll("rect")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("y", (d) => Math.floor(yScale(d)))
+      .attr("x", 0)
+      .attr("width", 30)
+      .attr("height", (d) => {
+          if (d == 99) {
+              return 6;
+          }
+          return Math.floor(yScale(d+1)) - Math.floor(yScale(d)) + 1;
+       })
+      .attr("fill", (d) => cScale(d));
+      legend
+        .attr("transform", `translate(${margin.left},${margin.top+50})`)
+        .attr("transform", "rotate(180)");
+  }   
               
 }
 
@@ -487,7 +509,7 @@ function parallelCoordinatesBrush(data){
         [margin.left, -(brushHeight / 2)],
         [width - margin.right, brushHeight / 2]
       ])
-      .on("start brush end", brushed);
+      .on("end", brushed);
 
   const path = svg.append("g")
       .attr("fill", "none")
@@ -525,7 +547,7 @@ function parallelCoordinatesBrush(data){
       .call(brush);
 
   const selections = new Map();
-
+  
   function brushed({selection}, key) {
     if (selection === null) selections.delete(key);
     else selections.set(key, selection.map(x[key].invert));
@@ -536,15 +558,35 @@ function parallelCoordinatesBrush(data){
       if (active) {
         d3.select(this).raise();
         selected.push(d);
-        
       }
     });
+    updateCountrySelection(selected);
   }
+}
+function updateCountrySelection(selected){
+  selectedCountries = [];
+  for (const c of selected){
+    selectedCountries.push(c.Country);
+  }
+  var ele=document.getElementsByName('chk');  
+  for(var i=0; i<ele.length; i++){  
+      if(ele[i].type=='checkbox'){
+        if(selectedCountries.includes(ele[i].id))
+          ele[i].checked = true;
+        else
+          ele[i].checked=false; 
+      }       
+  }
+  update(main_data);
 }
 
 function update(data) {
-  
-  main_data = data
+  if(data==main_data)
+    changeYear = false;
+  else{
+    changeYear = true;
+    main_data = data
+  }
   isUpdate = true
   changeButtonColor()
 
@@ -558,15 +600,17 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
-      updateTextInput(year);
+      if(changeYear == true){
+        document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+        updateTextInput(year);
+      }
       topology = map;
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
               .range([0, 1]);
+      drawScale(colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -581,15 +625,17 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
-      updateTextInput(year);
+      if(changeYear == true){
+        document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+        updateTextInput(year);
+      }
       topology = map;
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
               .range([0, 1]);
+      drawScale(colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -606,15 +652,16 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
-      updateTextInput(year);
-
+      if(changeYear == true){
+        document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+        updateTextInput(year);
+      }
       topology = map;
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleDiverging()
               .domain([250, 100, 50]);
+      drawScale(colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -630,15 +677,17 @@ function update(data) {
       year = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
       document.getElementById('sliderTime').min = min_scroll;
       document.getElementById('sliderTime').max = max_scroll;
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2)
-      document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
-      updateTextInput(year);
+      if(changeYear == true){
+        document.getElementById('sliderTime').value = parseInt((parseInt(max_scroll)+parseInt(min_scroll))/2);
+        updateTextInput(year);
+      }
       topology = map;
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
               .range([0, 1]);
+      drawScale(colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -673,7 +722,6 @@ function line_chart(dataset) {
     color = d3.select(this).style("stroke");
     var name = d3.select(this).attr("id");
 
-    console.log(color)
     if (selectedCountries.includes(name) ){
       svg_line_chart
         .selectAll(".line")    
@@ -835,7 +883,7 @@ function line_chart(dataset) {
   
     x_line = d3.scaleLinear()
       .domain(d3.extent(data, function(d) { return d.Year;}))
-      .range([ 0, 0.83*width ]);
+      .range([ 0, 0.86*width ]);
 
     svg_line_chart.append("g")
       .attr("transform", `translate(0, ${height-0.9*margin.bottom})`)
@@ -928,7 +976,6 @@ function createCheckList(data){
       .selectAll("div")
       .data(data)
       .join("div")
-        //.attr("class","countryList")
         .append('label')
             .attr('for',function(d,i){ return 'a'+i; })
             .text(function(d) { return d.Country; })
