@@ -82,8 +82,10 @@ if (main_data=="Air Quality" && isUpdate == false ){
               .range([0, 1]);
     topology = map;
     dataset = data;
+    console.log(d3.min(data, (d) => d.Value));
+    console.log(d3.max(data, (d) => d.Value));
     gen_geo_map();
-    drawScale(d3.interpolateBuPu)
+    drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), d3.interpolateBuPu)
 });
 }
 
@@ -234,7 +236,7 @@ function change_y_text(){
   return y_text
 }
 
-function drawScale(interpolator) {
+function drawScale(min,max,interpolator) {
   var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
   var cScale = d3.scaleSequential()
@@ -249,29 +251,8 @@ function drawScale(interpolator) {
     legend
       .select("svg")
       .remove();
-
-      legend
-      .append("svg")
-      .selectAll("rect")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("y", (d) => Math.floor(yScale(d)))
-      .attr("x", 0)
-      .attr("width", 30)
-      .attr("height", (d) => {
-          if (d == 99) {
-              return 6;
-          }
-          return Math.floor(yScale(d+1)) - Math.floor(yScale(d)) + 1;
-       })
-      .attr("fill", (d) => cScale(d));
-      legend
-        .attr("transform", `translate(${margin.left},${margin.top+50})`)
-        .attr("transform", "rotate(180)");
   }
-  else{
-    legend
+      legend
       .append("svg")
       .selectAll("rect")
       .data(data)
@@ -287,11 +268,27 @@ function drawScale(interpolator) {
           return Math.floor(yScale(d+1)) - Math.floor(yScale(d)) + 1;
        })
       .attr("fill", (d) => cScale(d));
-      legend
-        .attr("transform", `translate(${margin.left},${margin.top+50})`)
-        .attr("transform", "rotate(180)");
-  }   
-              
+    legend.select("svg")
+      .attr("transform", "rotate(180), translate(300, -50)");
+
+    legend.select("svg").append("text")
+      .attr("x", 0 )
+      .attr("y", 0)
+      .attr("dy", ".35em")
+      .attr("fill", "white")
+      .attr("font-size", "15px")
+      .attr("transform","rotate(180),translate(-60,-10)")
+      .text(parseFloat(min).toFixed(1));
+  
+   legend.select("svg").append("text")
+      .attr("x", 0 )
+      .attr("y", 0)
+      .attr("dy", ".35em")
+      .attr("fill", "white")
+      .attr("font-size", "15px")
+      .attr("transform","rotate(180),translate(-60,-140)")
+      .text(parseFloat(max).toFixed(1));
+                   
 }
 
 function gen_geo_map(){
@@ -501,7 +498,7 @@ function parallelCoordinatesBrush(data){
     
   const svg = d3.select("#parallelCoordinates")
                 .append("svg")
-                .style("width", width)
+                .style("width", width/2 - margin.left)
                 .style("height", height );
 
   const brush = d3.brushX()
@@ -610,7 +607,7 @@ function update(data) {
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
               .range([0, 1]);
-      drawScale(colorScheme);
+      drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -635,7 +632,7 @@ function update(data) {
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
               .range([0, 1]);
-      drawScale(colorScheme);
+      drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -661,7 +658,7 @@ function update(data) {
       isUpdate = true;
       colorScale = d3.scaleDiverging()
               .domain([250, 100, 50]);
-      drawScale(colorScheme);
+      drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
       gen_geo_map();
   });
   isUpdate = false
@@ -687,7 +684,7 @@ function update(data) {
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
               .range([0, 1]);
-      drawScale(colorScheme);
+      drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
       gen_geo_map();
   });
   isUpdate = false

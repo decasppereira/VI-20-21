@@ -179,11 +179,11 @@ input[type=text]{
 #checkList{
   position:fixed;
   top: 5%;
-  left: 85%;
-  width: 13%;
+  left: 87%;
+  width: 12%;
   height: 93%;
   background: #F3F4F6;
-  padding: 1em;
+  padding: 0.5em;
   border-radius: 2em;
   box-sizing: border-box;
 }
