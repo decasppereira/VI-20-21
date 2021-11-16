@@ -216,6 +216,9 @@ function changeButtonColor(){
   }
 }
 
+function expo(x, f) {
+  return Number.parseFloat(x).toExponential(f);
+}
 
 function change_y_text(){
   if (main_data == air_quality){
@@ -239,6 +242,18 @@ function change_y_text(){
 function drawScale(min,max,interpolator) {
   var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
+  var x
+  console.log(max.toFixed(1).toString())
+  if (max.toFixed(1).toString().length>6){
+    x = "-80"
+  }
+  else if (max.toFixed(1).toString().length==5){
+    x = "-70"
+  }
+  else{
+    x = "-60"
+  }
+  console.log(x)
   var cScale = d3.scaleSequential()
       .interpolator(interpolator)
       .domain([0,99]);
@@ -268,10 +283,28 @@ function drawScale(min,max,interpolator) {
           return Math.floor(yScale(d+1)) - Math.floor(yScale(d)) + 1;
        })
       .attr("fill", (d) => cScale(d));
+    
     legend.select("svg")
       .attr("transform", "rotate(180), translate(300, -50)");
-
+      
     legend.select("svg").append("text")
+      .attr("x", 0 )
+      .attr("y", 0)
+      .attr("dy", ".35em")
+      .attr("fill", "white")
+      .attr("font-size", "15px")
+      .attr("transform","rotate(180),translate("+x+",-140)")
+        
+      .text(function(){
+        if (max.toFixed(1).toString().length > 5){
+          return expo(max,1)
+        }
+        else{
+          return max.toFixed(1)
+        }
+      });
+  console.log(max.toString())
+   legend.select("svg").append("text")
       .attr("x", 0 )
       .attr("y", 0)
       .attr("dy", ".35em")
@@ -279,15 +312,17 @@ function drawScale(min,max,interpolator) {
       .attr("font-size", "15px")
       .attr("transform","rotate(180),translate(-60,-10)")
       .text(parseFloat(min).toFixed(1));
-  
-   legend.select("svg").append("text")
+
+  if (main_data == "Emissions"){
+    legend.select("svg").append("text")
       .attr("x", 0 )
       .attr("y", 0)
       .attr("dy", ".35em")
       .attr("fill", "white")
       .attr("font-size", "15px")
-      .attr("transform","rotate(180),translate(-60,-140)")
-      .text(parseFloat(max).toFixed(1));
+      .attr("transform","rotate(180),translate(-70,-75)")
+      .text(parseFloat(100).toFixed(1));
+  }
                    
 }
 
