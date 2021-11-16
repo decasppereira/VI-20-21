@@ -78,15 +78,15 @@ if (main_data=="Air Quality" && isUpdate == false ){
   
   Promise.all([topology, air_quality_data]).then(function ([map, data]){
     colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
+
     topology = map;
     dataset = data;
-    console.log(d3.min(data, (d) => d.Value));
-    console.log(d3.max(data, (d) => d.Value));
     gen_geo_map();
     drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), d3.interpolateBuPu)
-});
+    drawScale_grey()
+  });
 }
 
 
@@ -97,7 +97,7 @@ else if (main_data=="Fire" && isUpdate == false){
     topology = map;
     dataset = data;
     colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
     gen_geo_map();
 });
@@ -109,7 +109,7 @@ else if (main_data=="Temperature" && isUpdate == false){
     topology = map;
     dataset = data;
     colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
     gen_geo_map();
 });
@@ -121,7 +121,7 @@ else if (main_data=="Emissions" && isUpdate == false){
     topology = map;
     dataset = data;
     colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
     gen_geo_map();
 });
@@ -145,7 +145,7 @@ function updateYear(y){
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       gen_geo_map();
     });
@@ -158,7 +158,7 @@ function updateYear(y){
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       gen_geo_map();
     });
@@ -185,7 +185,7 @@ function updateYear(y){
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       gen_geo_map();
     });
@@ -239,6 +239,34 @@ function change_y_text(){
   return y_text
 }
 
+function drawScale_grey(){
+
+  if(isUpdate){
+    grey
+      .select("svg")
+      .remove();
+  }
+
+  var grey = d3.select("#grey")
+  grey.append("svg").attr("height", 150);
+  grey.select("svg").append("rect")
+    .attr("fill", "gray")
+    .attr("x", 60)
+    .attr("y", 0)
+    .attr("height", 30)
+    .attr("width", 30);
+  grey.select("svg").attr("transform", "rotate(90), translate(240, 225)");
+
+  grey.select("svg").append("text")
+  .attr("x", 10 )
+  .attr("y", -30)
+  .attr("dy", ".35em")
+  .attr("fill", "white")
+  .attr("font-size", "12px")
+  .attr("transform","rotate(-90),translate(-90,105)")
+  .text("No data");
+}
+
 function drawScale(min,max,interpolator) {
   var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
@@ -253,10 +281,17 @@ function drawScale(min,max,interpolator) {
   else{
     x = "-60"
   }
-  console.log(x)
-  var cScale = d3.scaleSequential()
-      .interpolator(interpolator)
-      .domain([0,99]);
+
+  if (main_data == "Emissions"){
+    var cScale = d3.scaleSequential()
+    .interpolator(interpolator)
+    .domain([99,0]);
+  }
+  else{
+    var cScale = d3.scaleSequential()
+    .interpolator(interpolator)
+    .domain([0,99]);
+  }
 
   var yScale = d3.scaleLinear()
       .domain([0,99])
@@ -303,7 +338,7 @@ function drawScale(min,max,interpolator) {
           return max.toFixed(1)
         }
       });
-  console.log(max.toString())
+      
    legend.select("svg").append("text")
       .attr("x", 0 )
       .attr("y", 0)
@@ -399,6 +434,8 @@ function gen_geo_map(){
             var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
                 var colorVal = colorScale(country.Value);
+                console.log(country)
+                console.log(colorScheme(colorVal))
                 return colorScheme(colorVal);
             }    
             else{
@@ -489,6 +526,8 @@ function gen_geo_map(){
           var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
                 var colorVal = colorScale(country.Value);
+                console.log(country)
+                console.log(colorScheme(colorVal))
                 return colorScheme(colorVal);
             }    
             else{
@@ -561,8 +600,9 @@ function parallelCoordinatesBrush(data){
         .attr("stroke-width","1.5"))
       .call(g => g.append("text")
         .attr("x", margin.left)
-        .attr("y", 25)
+        .attr("y", 35)
         .attr("text-anchor", "start")
+        .attr("font-weight","bold")
         .attr("fill", "white")
         .style("font-size", "13px")
         .text(d => d))
@@ -633,9 +673,10 @@ function update(data) {
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
+      drawScale_grey();
       gen_geo_map();
   });
   isUpdate = false
@@ -658,9 +699,10 @@ function update(data) {
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
+      drawScale_grey()
       gen_geo_map();
   });
   isUpdate = false
@@ -687,6 +729,7 @@ function update(data) {
       colorScale = d3.scaleDiverging()
               .domain([250, 100, 50]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
+      drawScale_grey()
       gen_geo_map();
   });
   isUpdate = false
@@ -710,9 +753,10 @@ function update(data) {
       dataset = data;
       isUpdate = true;
       colorScale = d3.scaleLinear()
-              .domain([d3.min(data, (d) => d.Value), d3.max(data, (d) => d.Value)])
+              .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
+      drawScale_grey()
       gen_geo_map();
   });
   isUpdate = false
@@ -902,9 +946,9 @@ function line_chart(dataset) {
     svg_line_chart = d3.select("div#line_chart")
     .append("svg")
       .attr("width", width )
-      .attr("height", height)
+      .attr("height", height-0.16*margin.bottom)
     .append("g")
-    .attr("transform", `translate(${1.5*margin.left}, ${0.3*margin.bottom})`);;
+    .attr("transform", `translate(${1.5*margin.left}, ${0.2*margin.bottom})`);;
   
     x_line = d3.scaleLinear()
       .domain(d3.extent(data, function(d) { return d.Year;}))
@@ -923,8 +967,8 @@ function line_chart(dataset) {
 
     svg_line_chart.append("text")
       .attr("transform",
-      "translate(" + (0.4*width) + " ," + 
-                    (0.9*height) + ")")
+      "translate(" + (0.42*width) + " ," + 
+                    (0.91*height) + ")")
       .style('fill', 'white')
       .style("text-anchor", "middle")
       .text("Year")
@@ -1002,6 +1046,7 @@ function createCheckList(data){
       .data(data)
       .join("div")
         .append('label')
+        .attr("class","container")
             .attr('for',function(d,i){ return 'a'+i; })
             .text(function(d) { return d.Country; })
         .append("input")
@@ -1009,6 +1054,7 @@ function createCheckList(data){
             .attr("type", "checkbox")
             .attr("name", "chk")
             .attr("id", function(d) { return d.Country ; })
+            .attr("class","checkmark")
             .attr("onClick", "checkClick(this)");
   });
 }

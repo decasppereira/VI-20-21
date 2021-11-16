@@ -82,7 +82,7 @@ body{
   position: absolute;
   width: 4.5%;
   left: 61%;
-  top: 94%;
+  top: 92%;
 } 
 
 .label{
@@ -176,12 +176,28 @@ input[type=text]{
   font-size: 1em;
 }
 
+
+
+
+.container {
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+
 #checkList{
   position:fixed;
   top: 5%;
-  left: 87%;
-  width: 12%;
-  height: 93%;
+  left: 86%;
+  width: 12.5%;
+  height: 89%;
   background: #F3F4F6;
   padding: 0.5em;
   border-radius: 2em;
@@ -197,7 +213,7 @@ input[type=text]{
   padding-left: 2%;
   padding-right: 1%;
   border-radius: 6px;
-  width: 40%;
+  width: 45%;
 }
 
 .selector:hover {
