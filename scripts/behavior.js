@@ -264,7 +264,17 @@ function drawScale(min,max,interpolator) {
 
   var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
-  var x
+  var x,y
+
+
+  if (main_data=="Emissions"){
+    y = "-30"
+  }
+  else {
+    y = "-55"
+  }
+
+
   if (max.toFixed(1).toString().length>6){
     x = "-80"
   }
@@ -297,7 +307,7 @@ function drawScale(min,max,interpolator) {
   }
       legend
       .append("svg")
-      .attr("height", 150)
+      .attr("height", 200)
       .attr("width",100)
       .selectAll("rect")
       .data(data)
@@ -315,7 +325,7 @@ function drawScale(min,max,interpolator) {
       .attr("fill", (d) => cScale(d));
     
     legend.select("svg")
-      .attr("transform", "rotate(180), translate(100, -50)");
+      .attr("transform", "rotate(180), translate(99.5, 0)");
       
     legend.select("svg").append("text")
       .attr("x", 0 )
@@ -323,7 +333,7 @@ function drawScale(min,max,interpolator) {
       .attr("dy", ".35em")
       .attr("fill", "white")
       .attr("font-size", "15px")
-      .attr("transform","rotate(180),translate("+x+",-140)")
+      .attr("transform","rotate(180),translate("+x+",-150)")
         
       .text(function(){
         if (max.toFixed(1).toString().length > 5){
@@ -340,10 +350,35 @@ function drawScale(min,max,interpolator) {
       .attr("dy", ".35em")
       .attr("fill", "white")
       .attr("font-size", "15px")
-      .attr("transform","rotate(180),translate(-60,-10)")
+      .attr("transform","rotate(180),translate(-60,-5)")
       .text(parseFloat(min).toFixed(1));
+
+  
+      legend.select("svg").append("text")
+      .attr("x", 0 )
+      .attr("y", 0)
+      .attr("dy", ".35em")
+      .attr("fill", "white")
+      .attr("font-size", "13px")
+      .attr("transform","rotate(180),translate("+y+",-180)")
+      .text(function(){
+        if (main_data == "Air Quality"){
+          return "(mg/m\u00B3)"
+        }
+        else if(main_data=="Temperature"){
+          return "(Celsius)"
+        }
+        else if (main_data=="Emissions"){
+          return "(%)"
+        }
+        else{
+          return "(Acres)"
+        }
+      });
+    
+    
       
-  if (main_data == "Emissions"){
+    if (main_data == "Emissions"){
     legend.select("svg").append("text")
       .attr("x", 0 )
       .attr("y", 0)
