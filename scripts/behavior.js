@@ -127,7 +127,6 @@ else if (main_data=="Emissions" && isUpdate == false){
 });
 }
 
-
 d3.csv("data/mergedAverages.csv").then((data) =>{
   parallelCoordinatesBrush(data);
 })
@@ -241,12 +240,6 @@ function change_y_text(){
 
 function drawScale_grey(){
 
-  if(isUpdate){
-    grey
-      .select("svg")
-      .remove();
-  }
-
   var grey = d3.select("#grey")
   grey.append("svg").attr("height", 150);
   grey.select("svg").append("rect")
@@ -271,7 +264,6 @@ function drawScale(min,max,interpolator) {
   var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
   var x
-  console.log(max.toFixed(1).toString())
   if (max.toFixed(1).toString().length>6){
     x = "-80"
   }
@@ -281,17 +273,17 @@ function drawScale(min,max,interpolator) {
   else{
     x = "-60"
   }
-
+/*
   if (main_data == "Emissions"){
     var cScale = d3.scaleSequential()
     .interpolator(interpolator)
     .domain([99,0]);
   }
-  else{
+  else{*/
     var cScale = d3.scaleSequential()
     .interpolator(interpolator)
     .domain([0,99]);
-  }
+//  }
 
   var yScale = d3.scaleLinear()
       .domain([0,99])
@@ -434,8 +426,7 @@ function gen_geo_map(){
             var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
                 var colorVal = colorScale(country.Value);
-                console.log(country)
-                console.log(colorScheme(colorVal))
+         
                 return colorScheme(colorVal);
             }    
             else{
@@ -526,8 +517,7 @@ function gen_geo_map(){
           var country = year_data.find(c => c.Country == d.properties.name);  
             if(country){
                 var colorVal = colorScale(country.Value);
-                console.log(country)
-                console.log(colorScheme(colorVal))
+       
                 return colorScheme(colorVal);
             }    
             else{
@@ -675,8 +665,8 @@ function update(data) {
       colorScale = d3.scaleLinear()
               .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
+      
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
-      drawScale_grey();
       gen_geo_map();
   });
   isUpdate = false
@@ -702,7 +692,6 @@ function update(data) {
               .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
-      drawScale_grey()
       gen_geo_map();
   });
   isUpdate = false
@@ -729,7 +718,6 @@ function update(data) {
       colorScale = d3.scaleDiverging()
               .domain([250, 100, 50]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
-      drawScale_grey()
       gen_geo_map();
   });
   isUpdate = false
@@ -756,7 +744,6 @@ function update(data) {
               .domain([d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value)])
               .range([0, 1]);
       drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
-      drawScale_grey()
       gen_geo_map();
   });
   isUpdate = false
@@ -991,7 +978,7 @@ function line_chart(dataset) {
       svg_line_chart.append("text")
       .attr("class","ylabel")
       .attr("x", -3*margin.left)
-      .attr("y", "-18%")
+      .attr("y", "-22%")
       .attr("transform", "rotate(-90)")
       .attr("dy", "1em")
       .style("text-anchor", "middle")
