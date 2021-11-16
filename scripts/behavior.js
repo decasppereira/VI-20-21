@@ -241,18 +241,18 @@ function change_y_text(){
 function drawScale_grey(){
 
   var grey = d3.select("#grey")
-  grey.append("svg").attr("height", 150);
+  grey.append("svg").attr("height", 90).attr("width",40);
   grey.select("svg").append("rect")
     .attr("fill", "gray")
-    .attr("x", 60)
+    .attr("x", 0)
     .attr("y", 0)
     .attr("height", 30)
     .attr("width", 30);
-  grey.select("svg").attr("transform", "rotate(90), translate(240, 225)");
+  grey.select("svg").attr("transform", "rotate(90), translate(190, 64.5)");
 
   grey.select("svg").append("text")
   .attr("x", 10 )
-  .attr("y", -30)
+  .attr("y", -90)
   .attr("dy", ".35em")
   .attr("fill", "white")
   .attr("font-size", "12px")
@@ -261,6 +261,7 @@ function drawScale_grey(){
 }
 
 function drawScale(min,max,interpolator) {
+
   var legend = d3.select("#colorScale");
   var data = Array.from(Array(100).keys());
   var x
@@ -296,6 +297,8 @@ function drawScale(min,max,interpolator) {
   }
       legend
       .append("svg")
+      .attr("height", 150)
+      .attr("width",100)
       .selectAll("rect")
       .data(data)
       .enter()
@@ -312,7 +315,7 @@ function drawScale(min,max,interpolator) {
       .attr("fill", (d) => cScale(d));
     
     legend.select("svg")
-      .attr("transform", "rotate(180), translate(300, -50)");
+      .attr("transform", "rotate(180), translate(100, -50)");
       
     legend.select("svg").append("text")
       .attr("x", 0 )
@@ -563,7 +566,7 @@ function parallelCoordinatesBrush(data){
         [margin.left, -(brushHeight / 2)],
         [width - margin.right, brushHeight / 2]
       ])
-      .on("end", brushed);
+      .on("start brush end", brushed);
 
   const path = svg.append("g")
       .attr("fill", "none")
