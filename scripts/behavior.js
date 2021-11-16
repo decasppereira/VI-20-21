@@ -273,17 +273,17 @@ function drawScale(min,max,interpolator) {
   else{
     x = "-60"
   }
-/*
+
   if (main_data == "Emissions"){
     var cScale = d3.scaleSequential()
     .interpolator(interpolator)
     .domain([99,0]);
   }
-  else{*/
+  else{
     var cScale = d3.scaleSequential()
     .interpolator(interpolator)
     .domain([0,99]);
-//  }
+  }
 
   var yScale = d3.scaleLinear()
       .domain([0,99])
@@ -339,7 +339,7 @@ function drawScale(min,max,interpolator) {
       .attr("font-size", "15px")
       .attr("transform","rotate(180),translate(-60,-10)")
       .text(parseFloat(min).toFixed(1));
-
+      
   if (main_data == "Emissions"){
     legend.select("svg").append("text")
       .attr("x", 0 )
@@ -717,7 +717,7 @@ function update(data) {
       isUpdate = true;
       colorScale = d3.scaleDiverging()
               .domain([250, 100, 50]);
-      drawScale(d3.min(data, (d) => +d.Value), d3.max(data, (d) => +d.Value), colorScheme);
+      drawScale(45.04, d3.max(data, (d) => +d.Value), colorScheme);
       gen_geo_map();
   });
   isUpdate = false
