@@ -371,10 +371,6 @@ function gen_geo_map(){
         }})
         .on("mouseover", mouseOver )
         .on("mouseleave", mouseLeave )
-        .append("title")
-        .text( function (d){
-            return d.properties.name;
-        })
 
 
   }
@@ -465,10 +461,7 @@ function gen_geo_map(){
         }})
         .on("mouseover", mouseOver )
         .on("mouseleave", mouseLeave )
-        .append("title")
-        .text( function (d){
-            return d.properties.name;
-        })
+   
   }
   
 }
